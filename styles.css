@@ -38,7 +38,7 @@ header {
   position: relative;
 }
 .logo {
-  height: 250px;
+  height: 400px;
   max-width: 500px;
   object-fit: contain;
   position: absolute;
@@ -46,7 +46,7 @@ header {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 2;
-  padding: 90px 16px 48px 16px;
+  padding: 120px 16px 48px 16px;
 
 }
 .hero {
