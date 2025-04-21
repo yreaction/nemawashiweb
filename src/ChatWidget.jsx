@@ -55,12 +55,23 @@ export default function ChatWidget() {
         body: JSON.stringify({ message: text, userId }),
       });
       const data = await res.json();
+      // Soporta respuesta como array o string
+      let reply = '';
+      if (Array.isArray(data) && data[0]?.response) {
+        reply = data[0].response;
+      } else if (typeof data === 'object' && data.response) {
+        reply = data.response;
+      } else if (typeof data === 'string') {
+        reply = data;
+      } else {
+        reply = 'Gracias, tu mensaje ha sido recibido.';
+      }
       setMessages((msgs) => [
         ...msgs,
         {
           position: 'left',
           type: 'text',
-          text: data.reply || 'Gracias, tu mensaje ha sido recibido.',
+          text: reply,
           date: new Date(),
           title: 'Nema',
         },
