@@ -11,7 +11,7 @@ export default async function handler(req, res) {
       return;
     }
     // Forward to the real webhook
-    const webhookRes = await fetch('https://n8n.nemawashi.ai/webhook-test/ead68b2e-85a0-4239-bfe1-76f233f4eca4', {
+    const webhookRes = await fetch('https://n8n.nemawashi.ai/webhook/ead68b2e-85a0-4239-bfe1-76f233f4eca4', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, userId }),
