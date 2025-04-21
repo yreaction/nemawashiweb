@@ -1,80 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nemawashi AI - Automatización IA para PYMEs</title>
+  <meta name="description" content="Automatización, agentes y soluciones de IA prácticas para PYMEs. Descubre cómo ahorrar tiempo hablando con Sima, nuestro agente IA." />
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="images/nemaWashiLogo.png">
+  <!-- Tipografía Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header: Logo centrado -->
+  <header>
+    <img src="images/nemaWashiLogo.png" alt="Nemawashi AI Logo" class="logo" loading="lazy">
+  </header>
 
-    <title>Nemawashi AI Transformacion consensuada</title>
-<base href="https://nemawashi.ai//" target="_blank" />
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>¿Pierdes tiempo en tareas repetitivas? Habla con Sima</h1>
+    <p>Soy Sima, tu asistente IA. Chatea conmigo 2 minutos y descubre <strong>GRATIS</strong> cómo la automatización puede eliminar tareas tediosas en tu día a día.</p>
+    <div class="sima-placeholder">
+      <!-- Aquí se integrará el widget de chat de Sima -->
+      <button class="sima-btn">Hablar con Sima Ahora</button>
+      <span style="font-size:0.98rem;color:var(--text-secondary);opacity:0.7;">(Aquí aparecerá el chat de Sima)</span>
+    </div>
+  </section>
 
+  <!-- Use Cases Section -->
+  <section class="use-cases">
+    <h2>Cómo la IA Simplifica tu Día a Día</h2>
+    <div class="use-cards">
+      <!-- Caso 1: Emails -->
+      <div class="use-card">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg>
+        <div class="use-card-title">Emails que Nunca Acaban</div>
+        <div class="use-card-desc">Un asistente IA que responde por ti las preguntas comunes.</div>
+        <div class="use-card-benefit">Recupera horas cada semana.</div>
+      </div>
+      <!-- Caso 2: Citas -->
+      <div class="use-card">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <div class="use-card-title">Caos de Agendar Citas</div>
+        <div class="use-card-desc">Un sistema simple que agenda citas automáticamente según tu disponibilidad.</div>
+        <div class="use-card-benefit">Elimina errores y olvidos.</div>
+      </div>
+      <!-- Caso 3: Datos Manuales -->
+      <div class="use-card">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 13h6M9 17h6"/></svg>
+        <div class="use-card-title">Datos Manuales Interminables</div>
+        <div class="use-card-desc">Automatizamos la entrada de datos desde facturas o formularios.</div>
+        <div class="use-card-benefit">Tu equipo se centra en lo importante.</div>
+      </div>
+      <!-- Caso 4: Preguntas Frecuentes -->
+      <div class="use-card">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 1 1 5.82 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r="1"/></svg>
+        <div class="use-card-title">Preguntas Frecuentes Repetitivas</div>
+        <div class="use-card-desc">Un chatbot que guía a tus clientes con la información que necesitan 24/7.</div>
+        <div class="use-card-benefit">Mejora la satisfacción del cliente.</div>
+      </div>
+    </div>
+  </section>
 
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        background-color: white;
-      }
+  <!-- Philosophy Section -->
+  <section class="philosophy">
+    <h3>IA Práctica, Resultados Reales</h3>
+    <p>En Nemawashi AI escuchamos primero. Entendemos tu problema real, proponemos soluciones simples y efectivas, y medimos el ahorro de tiempo. Sin venderte tecnología innecesaria ni complicaciones. Nuestro objetivo: que tu negocio gane tiempo y tranquilidad, de verdad.</p>
+  </section>
 
-      .body-scroll {
-        overflow: hidden auto;
-      }
-
-      img {
-        -webkit-user-drag: none;
-      }
-
-      * {
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-      }
-
-      #root {
-        display: flex;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        position: fixed;
-      }
-
-      .body-scroll > #root {
-        width: 100%;
-        height: auto;
-        min-height: 100vh;
-        flex-direction: column;
-        overflow: initial;
-        position: initial;
-      }
-    </style>
-  </head>
-  <body>
-    <noscript> You need to enable JavaScript to run this app. </noscript>
-
-    <div id="root"></div>
-
-    <script src="https://nemawashi.ai//react.production.min.js"></script>
-    <script src="https://nemawashi.ai//react-dom.production.min.js"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
-    <script src="https://nemawashi.ai//index-c9c69f9523d2dfb8.js"></script>
-<script>
-(function () {
-  Noodl.Env['BaseUrl'] = 'https://nemawashi.ai//';
-})();
-</script>
-
-    
-
-    <script src="https://nemawashi.ai//noodl.deploy.js"></script>
-    <script type="application/javascript">
-      document.addEventListener("DOMContentLoaded", function () {
-        const root = document.getElementById("root");
-        window.Noodl._viewerReact.renderDeployed(root, __noodl_modules, window.projectData);
-      });
-    </script>
-  </body>
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="#" title="Política de Privacidad">Política de Privacidad</a>
+      <a href="#" title="Contacto">Contacto</a>
+    </div>
+    <img src="images/nemaWashiLogo.png" alt="Nemawashi AI Logo" class="footer-logo" loading="lazy">
+    <div class="copyright"> 2025 Nemawashi AI. Todos los derechos reservados.</div>
+  </footer>
+</body>
 </html>
