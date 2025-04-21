@@ -20,10 +20,9 @@
   <section class="hero">
     <h1>¿Pierdes tiempo en tareas repetitivas? Habla con Sima</h1>
     <p>Soy Sima, tu asistente IA. Chatea conmigo 2 minutos y descubre <strong>GRATIS</strong> cómo la automatización puede eliminar tareas tediosas en tu día a día.</p>
-    <div class="sima-placeholder">
+    <div class="sima-placeholder" id="sima-chat-placeholder">
       <!-- Aquí se integrará el widget de chat de Sima -->
-      <button class="sima-btn">Hablar con Sima Ahora</button>
-      <span style="font-size:0.98rem;color:var(--text-secondary);opacity:0.7;">(Aquí aparecerá el chat de Sima)</span>
+      <div id="sima-chat-widget"></div>
     </div>
   </section>
 
@@ -77,5 +76,67 @@
     <img src="images/nemaWashiLogo.png" alt="Nemawashi AI Logo" class="footer-logo" loading="lazy">
     <div class="copyright"> 2025 Nemawashi AI. Todos los derechos reservados.</div>
   </footer>
+  <script>
+    // Chat simple: recoge mensaje, lo envía al webhook y muestra respuesta
+    const chatWidget = document.createElement('div');
+    chatWidget.style.width = '100%';
+    chatWidget.style.maxWidth = '420px';
+    chatWidget.style.margin = '0 auto';
+    chatWidget.style.background = 'var(--card-bg)';
+    chatWidget.style.borderRadius = 'var(--border-radius)';
+    chatWidget.style.boxShadow = 'var(--card-shadow)';
+    chatWidget.style.padding = '20px 18px';
+    chatWidget.style.display = 'flex';
+    chatWidget.style.flexDirection = 'column';
+    chatWidget.style.alignItems = 'stretch';
+    chatWidget.style.gap = '10px';
+
+    chatWidget.innerHTML = `
+      <div id="chat-history" style="min-height:80px;max-height:180px;overflow-y:auto;margin-bottom:12px;font-size:1rem;background:rgba(0,0,0,0.03);border-radius:8px;padding:8px 10px;"></div>
+      <form id="chat-form" style="display:flex;gap:8px;">
+        <input id="chat-input" type="text" placeholder="Escribe tu pregunta..." required style="flex:1;padding:10px 14px;border-radius:8px;border:1px solid #ccc;font-size:1rem;outline:none;" />
+        <button type="submit" style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:0 18px;font-weight:700;cursor:pointer;">Enviar</button>
+      </form>
+    `;
+
+    function addMessage(msg, from) {
+      const chatHistory = document.getElementById('chat-history');
+      const msgDiv = document.createElement('div');
+      msgDiv.textContent = (from === 'user' ? 'Tú: ' : 'Sima: ') + msg;
+      msgDiv.style.marginBottom = '6px';
+      msgDiv.style.color = from === 'user' ? 'var(--primary)' : 'var(--accent)';
+      chatHistory.appendChild(msgDiv);
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    setTimeout(() => {
+      const placeholder = document.getElementById('sima-chat-widget');
+      if (placeholder) {
+        placeholder.appendChild(chatWidget);
+        addMessage('¡Hola! Soy Sima, tu agente IA. Cuéntame qué tarea repetitiva te quita tiempo y te ayudo a automatizarla.', 'sima');
+      }
+      const form = chatWidget.querySelector('#chat-form');
+      const input = chatWidget.querySelector('#chat-input');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const userMsg = input.value.trim();
+        if (!userMsg) return;
+        addMessage(userMsg, 'user');
+        input.value = '';
+        // Llamada al webhook
+        try {
+          const res = await fetch('https://n8n.nemawashi.ai/webhook-test/ead68b2e-85a0-4239-bfe1-76f233f4eca4', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ message: userMsg })
+          });
+          const data = await res.json();
+          addMessage(data.reply || 'Gracias, tu mensaje ha sido recibido.', 'sima');
+        } catch {
+          addMessage('Hubo un error al conectar con el agente. Intenta de nuevo más tarde.', 'sima');
+        }
+      });
+    }, 400);
+  </script>
 </body>
 </html>

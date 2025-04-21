@@ -1,15 +1,15 @@
 /* Nemawashi AI Landing Page Styles */
 :root {
-  --primary: #2563eb; /* Azul profesional */
-  --accent: #22c55e;  /* Verde confianza */
-  --bg-light: #f8fafc;
-  --bg-dark: #222c36;
-  --text-main: #1e293b;
-  --text-secondary: #64748b;
-  --footer-bg: #1e293b;
-  --footer-text: #f1f5f9;
-  --card-bg: #fff;
-  --card-shadow: 0 4px 24px 0 rgba(30,41,59,0.07);
+  --primary: #444444; /* Gris oscuro */
+  --accent: #9b8c6b;  /* Marfil acento suave */
+  --bg-light: #fffaf3; /* Marfil */
+  --bg-dark: #222222;
+  --text-main: #222222; /* Gris oscuro fuerte */
+  --text-secondary: #7a7a7a;
+  --footer-bg: #222222;
+  --footer-text: #f8f5ee;
+  --card-bg: #fffaf3;
+  --card-shadow: 0 4px 24px 0 rgba(34,34,34,0.07);
   --border-radius: 18px;
   --font-main: 'Inter', 'Montserrat', 'Lato', Arial, sans-serif;
 }
@@ -34,14 +34,14 @@ header {
   align-items: center;
 }
 .logo {
-  height: 54px;
-  max-width: 200px;
+  height: 216px;
+  max-width: 800px;
   object-fit: contain;
 }
 .hero {
   text-align: center;
   padding: 56px 16px 48px 16px;
-  background: linear-gradient(120deg, #f8fafc 60%, #e0e7ef 100%);
+  background: linear-gradient(120deg, #fffaf3 60%, #e0e7ef 100%);
   position: relative;
 }
 .hero h1 {
@@ -78,7 +78,7 @@ header {
   cursor: pointer;
   transition: background 0.2s;
   margin-top: 8px;
-  box-shadow: 0 2px 12px 0 rgba(37,99,235,0.08);
+  box-shadow: 0 2px 12px 0 rgba(68,68,68,0.08);
 }
 .sima-btn:hover {
   background: var(--accent);
@@ -115,7 +115,7 @@ header {
 }
 .use-card:hover {
   transform: translateY(-5px) scale(1.03);
-  box-shadow: 0 8px 32px 0 rgba(30,41,59,0.13);
+  box-shadow: 0 8px 32px 0 rgba(34,34,34,0.13);
 }
 .use-card svg {
   width: 38px;
