@@ -68,7 +68,7 @@ header {
 }
 .sima-placeholder {
   margin: 0 auto 0 auto;
-  max-width: 420px;
+  max-width: 600px;
   background: var(--card-bg);
   border-radius: var(--border-radius);
   box-shadow: var(--card-shadow);
