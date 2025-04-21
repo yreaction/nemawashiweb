@@ -16,8 +16,9 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, userId }),
     });
-    const data = await webhookRes.json();
-    res.status(200).json(data);
+    const text = await webhookRes.text();
+    // Devuelve SIEMPRE el texto crudo recibido del webhook para depuración
+    res.status(200).json({ raw: text });
   } catch (e) {
     res.status(500).json({ error: 'Proxy error', details: e.message });
   }
