@@ -57,7 +57,9 @@ export default function ChatWidget() {
       const data = await res.json();
       // Soporta respuesta como array o string
       let reply = '';
-      if (Array.isArray(data) && data[0]?.response) {
+      if (data.raw) {
+        reply = data.raw;
+      } else if (Array.isArray(data) && data[0]?.response) {
         reply = data[0].response;
       } else if (typeof data === 'object' && data.response) {
         reply = data.response;
