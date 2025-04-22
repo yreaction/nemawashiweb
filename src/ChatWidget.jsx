@@ -72,17 +72,45 @@ export default function ChatWidget() {
     ]);
     setLoading(true);
     setInput('');
-    await new Promise((res) => setTimeout(res, 1800));
-    setMessages((msgs) => [
-      ...msgs,
-      {
-        position: 'left',
-        type: 'text',
-        text: '¡Esta es una respuesta simulada de Nema! (El backend está offline)',
-        date: new Date(),
-        title: 'Nema',
-      },
-    ]);
+    try {
+      const res = await fetch('/api/chat-proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, userId }),
+      });
+    
+      const data = await res.json();
+    
+      const reply =
+        data.raw ||
+        (Array.isArray(data) && data[0]?.response) ||
+        data.response ||
+        (typeof data === 'string' ? data : 'Gracias, tu mensaje ha sido recibido.');
+    
+      setMessages((msgs) => [
+        ...msgs,
+        {
+          position: 'left',
+          type: 'text',
+          text: reply,
+          date: new Date(),
+          title: 'Nema',
+        },
+      ]);
+    } catch (error) {
+      console.error('Error al contactar al backend:', error);
+      setMessages((msgs) => [
+        ...msgs,
+        {
+          position: 'left',
+          type: 'text',
+          text: 'Hubo un error al contactar al agente. Intenta más tarde.',
+          date: new Date(),
+          title: 'Nema',
+        },
+      ]);
+    }
+    
     setLoading(false);
   };
 
