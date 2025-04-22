@@ -29,21 +29,21 @@ export default function ChatWidget() {
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600;
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Scroll + focus
   useEffect(() => {
-    const scrollToBottom = () => {
-      if (chatContainerRef.current && messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
-    };
-    scrollToBottom();
-    const t = setTimeout(() => {
-      scrollToBottom();
-      if (inputRef.current && isMobile && mobileOpen) {
-        inputRef.current.focus({ preventScroll: true });
-      }
-    }, 200);
-    return () => clearTimeout(t);
+    // Solo hacer scroll cuando el chat está visible y hay interacción
+    if ((isMobile && mobileOpen) || !isMobile) {
+      const scrollToBottom = () => {
+        if (chatContainerRef.current && messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
+  
+      const timeout = setTimeout(() => {
+        scrollToBottom();
+      }, 150); // pequeño delay para asegurar render
+  
+      return () => clearTimeout(timeout);
+    }
   }, [messages, loading, isMobile, mobileOpen]);
 
   // Bloqueo de scroll fondo en móvil
