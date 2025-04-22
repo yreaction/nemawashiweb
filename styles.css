@@ -297,3 +297,58 @@ footer {
   border-top: 1px solid #eee;
   box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
 }
+
+/* ---- ChatWidget Animaciones y Layout ---- */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dots {
+  0% {
+    content: '';
+  }
+  33% {
+    content: '.';
+  }
+  66% {
+    content: '..';
+  }
+  100% {
+    content: '...';
+  }
+}
+
+.thinking-dots::after {
+  content: '';
+  display: inline-block;
+  animation: dots 1.2s steps(3, end) infinite;
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+/* Asegura altura completa en móvil para el chat modal */
+.mobile-chat-layout {
+  height: 100dvh;
+  max-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Input pegado abajo en móvil */
+.mobile-chat-layout form {
+  position: sticky;
+  bottom: 0;
+  z-index: 10020;
+  background: var(--card-bg, #faf9f6);
+  border-top: 1px solid #eee;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+}
