@@ -28,20 +28,16 @@ export default function ChatWidget() {
   const userId = getUserId();
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600;
   const [mobileOpen, setMobileOpen] = useState(false);
+  const hasInteracted = useRef(false);
 
   useEffect(() => {
-    // Solo hacer scroll cuando el chat está visible y hay interacción
-    if ((isMobile && mobileOpen) || !isMobile) {
-      const scrollToBottom = () => {
+    // Solo hacer scroll después de que el usuario haya interactuado
+    if (hasInteracted.current && ((isMobile && mobileOpen) || !isMobile)) {
+      const timeout = setTimeout(() => {
         if (chatContainerRef.current && messagesEndRef.current) {
           messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-      };
-  
-      const timeout = setTimeout(() => {
-        scrollToBottom();
-      }, 150); // pequeño delay para asegurar render
-  
+      }, 120); // pequeño retardo
       return () => clearTimeout(timeout);
     }
   }, [messages, loading, isMobile, mobileOpen]);
@@ -60,6 +56,7 @@ export default function ChatWidget() {
 
   const sendMessage = async (text) => {
     if (!text.trim()) return;
+    hasInteracted.current = true;
     setMessages((msgs) => [
       ...msgs,
       {
