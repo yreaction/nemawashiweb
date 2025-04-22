@@ -30,10 +30,17 @@ export default function ChatWidget() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const shouldScroll = (!isMobile || mobileOpen) && messages.length > 1;
-    if (shouldScroll) {
+    if ((isMobile && mobileOpen) || (!isMobile && messages.length > 1)) {
       const timeout = setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  
+        // 👉 Forzar focus en input solo en móvil
+        if (isMobile && mobileOpen) {
+          setTimeout(() => {
+            inputRef.current?.focus({ preventScroll: true });
+          }, 100);
+        }
+  
       }, 200);
       return () => clearTimeout(timeout);
     }
@@ -43,73 +50,121 @@ export default function ChatWidget() {
     if (isMobile && mobileOpen) {
       return (
         <div className="mobile-chat-layout" style={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100dvh',
-          background: 'var(--card-bg, #faf9f6)', zIndex: 10010,
-          display: 'flex', flexDirection: 'column',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100dvh',
+          background: 'var(--card-bg, #faf9f6)',
+          zIndex: 10010,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          boxShadow: '0 2px 24px 0 rgba(34,34,34,0.13)'
         }}>
-          {/* Cabecera */}
+          {/* Cabecera con botón cerrar */}
           <div style={{
-            background: '#232323', color: '#fff',
-            padding: '13px 0 11px', textAlign: 'center',
-            fontWeight: 800, fontSize: 19, letterSpacing: 1, position: 'relative',
+            background: '#232323',
+            color: '#fff',
+            padding: '13px 0 11px',
+            textAlign: 'center',
+            fontWeight: 800,
+            fontSize: 19,
+            position: 'relative',
             flexShrink: 0
           }}>
             Nema
-            <button onClick={() => setMobileOpen(false)} style={{
-              position: 'absolute', right: 12, top: 8, background: 'none',
-              border: 'none', color: '#fff', fontSize: 26, fontWeight: 700, cursor: 'pointer'
-            }}>&times;</button>
+            <button
+              onClick={() => setMobileOpen(false)}
+              style={{
+                position: 'absolute',
+                right: 12,
+                top: 8,
+                background: 'none',
+                border: 'none',
+                color: '#fff',
+                fontSize: 26,
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              &times;
+            </button>
           </div>
-    
-          {/* Mensajes con scroll */}
+        
+          {/* Contenedor mensajes con scroll */}
           <div ref={chatContainerRef} style={{
             flex: 1,
             overflowY: 'auto',
-            padding: '16px 10px 10px 10px',
+            padding: '18px 8px 8px',
+            maxHeight: 'calc(100dvh - 64px - 64px)',
             scrollBehavior: 'smooth'
           }}>
             {messagesToShow.map(renderMessage)}
             <div ref={messagesEndRef} />
           </div>
-    
-          {/* Input */}
-          <form style={{
-            padding: '10px 10px 16px 10px',
-            background: 'var(--card-bg, #faf9f6)',
-            borderTop: '1px solid #eee',
-            flexShrink: 0
-          }} onSubmit={e => { e.preventDefault(); sendMessage(input); }}>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+        
+          {/* Input para escribir */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              sendMessage(input);
+            }}
+            style={{
+              padding: '10px 8px 12px 8px',
+              borderTop: '1px solid #eee',
+              background: 'var(--card-bg, #faf9f6)'
+            }}
+          >
+            <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
               <input
                 ref={inputRef}
                 placeholder="Escribe tu mensaje..."
                 value={input}
                 onChange={e => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={loading}
                 onFocus={() => {
                   setTimeout(() => {
-                    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                  }, 150);
+                    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                  }, 100);
                 }}
+                onKeyDown={handleKeyDown}
+                disabled={loading}
                 style={{
-                  width: '100%', borderRadius: 24, border: '1.5px solid #e0e0e0',
-                  fontSize: 18, padding: '12px 90px 12px 18px', background: '#fafbfc',
-                  boxShadow: 'none', outline: 'none', transition: 'border 0.2s'
+                  width: '100%',
+                  borderRadius: 24,
+                  border: '1.5px solid #e0e0e0',
+                  fontSize: 18,
+                  padding: '12px 90px 12px 18px',
+                  background: '#fafbfc',
+                  boxShadow: 'none',
+                  outline: 'none'
                 }}
               />
-              <button type="submit" style={{
-                position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)',
-                height: 38, minWidth: 70, fontWeight: 700, fontSize: 17,
-                borderRadius: 20, background: '#232323', color: '#fff', border: 'none',
-                cursor: loading ? 'wait' : 'pointer'
-              }} disabled={loading}>
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  position: 'absolute',
+                  right: 6,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  height: 38,
+                  minWidth: 70,
+                  fontWeight: 700,
+                  fontSize: 17,
+                  borderRadius: 20,
+                  background: '#232323',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: loading ? 'wait' : 'pointer'
+                }}
+              >
                 Enviar
               </button>
             </div>
           </form>
         </div>
-      );
+      )
     }
     else {
       document.body.style.overflow = '';
