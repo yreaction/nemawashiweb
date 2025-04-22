@@ -32,7 +32,7 @@ export default function ChatWidget() {
   useEffect(() => {
     if ((isMobile && mobileOpen) || (!isMobile && messages.length > 1)) {
       const timeout = setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 120);
       return () => clearTimeout(timeout);
     }
@@ -196,10 +196,16 @@ export default function ChatWidget() {
       transition: 'min-height 1.2s cubic-bezier(.4,1.2,.5,1)',
       overflow: 'hidden'
     }}>
-      <div ref={chatContainerRef} style={{
-        flex: 1, overflowY: 'auto', padding: '24px 16px 12px 16px',
-        background: 'var(--card-bg, #faf9f6)', scrollBehavior: 'smooth'
-      }}>
+     <div ref={chatContainerRef} style={{
+  flex: 1,
+  overflowY: 'auto',
+  padding: '24px 16px 12px 16px',
+  background: 'var(--card-bg, #faf9f6)',
+  scrollBehavior: 'smooth',
+  maxHeight: '400px',
+  minHeight: '200px'
+}}>
+
         {messagesToShow.map(renderMessage)}
         <div ref={messagesEndRef} />
       </div>
