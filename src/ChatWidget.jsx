@@ -41,8 +41,77 @@ export default function ChatWidget() {
 
   useEffect(() => {
     if (isMobile && mobileOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
+      return (
+        <div className="mobile-chat-layout" style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100dvh',
+          background: 'var(--card-bg, #faf9f6)', zIndex: 10010,
+          display: 'flex', flexDirection: 'column',
+        }}>
+          {/* Cabecera */}
+          <div style={{
+            background: '#232323', color: '#fff',
+            padding: '13px 0 11px', textAlign: 'center',
+            fontWeight: 800, fontSize: 19, letterSpacing: 1, position: 'relative',
+            flexShrink: 0
+          }}>
+            Nema
+            <button onClick={() => setMobileOpen(false)} style={{
+              position: 'absolute', right: 12, top: 8, background: 'none',
+              border: 'none', color: '#fff', fontSize: 26, fontWeight: 700, cursor: 'pointer'
+            }}>&times;</button>
+          </div>
+    
+          {/* Mensajes con scroll */}
+          <div ref={chatContainerRef} style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '16px 10px 10px 10px',
+            scrollBehavior: 'smooth'
+          }}>
+            {messagesToShow.map(renderMessage)}
+            <div ref={messagesEndRef} />
+          </div>
+    
+          {/* Input */}
+          <form style={{
+            padding: '10px 10px 16px 10px',
+            background: 'var(--card-bg, #faf9f6)',
+            borderTop: '1px solid #eee',
+            flexShrink: 0
+          }} onSubmit={e => { e.preventDefault(); sendMessage(input); }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <input
+                ref={inputRef}
+                placeholder="Escribe tu mensaje..."
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={loading}
+                onFocus={() => {
+                  setTimeout(() => {
+                    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                  }, 150);
+                }}
+                style={{
+                  width: '100%', borderRadius: 24, border: '1.5px solid #e0e0e0',
+                  fontSize: 18, padding: '12px 90px 12px 18px', background: '#fafbfc',
+                  boxShadow: 'none', outline: 'none', transition: 'border 0.2s'
+                }}
+              />
+              <button type="submit" style={{
+                position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)',
+                height: 38, minWidth: 70, fontWeight: 700, fontSize: 17,
+                borderRadius: 20, background: '#232323', color: '#fff', border: 'none',
+                cursor: loading ? 'wait' : 'pointer'
+              }} disabled={loading}>
+                Enviar
+              </button>
+            </div>
+          </form>
+        </div>
+      );
+    }
+    else {
       document.body.style.overflow = '';
     }
     return () => {
