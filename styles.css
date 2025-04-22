@@ -67,16 +67,16 @@ header {
   margin-bottom: 32px;
 }
 .sima-placeholder {
-  margin: 0 auto 0 auto;
-  max-width: 600px;
-  background: var(--card-bg);
-  border-radius: var(--border-radius);
-  box-shadow: var(--card-shadow);
-  padding: 32px 24px;
+  margin: 32px auto;
+  width: 100%;
+  max-width: 720px;
+  padding: 0;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
+  justify-content: center;
+  align-items: stretch;
+}
+.sima-chat-widget {
+  width: 100%;
 }
 .sima-btn {
   background: var(--primary);
