@@ -26,6 +26,8 @@ export default function ChatWidget() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const userId = getUserId();
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600;
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     // Scroll to the last message, pero espera a que el DOM se actualice
@@ -142,6 +144,58 @@ export default function ChatWidget() {
       </div>
     );
   };
+
+  if (isMobile && !mobileOpen) {
+    // Botón flotante para abrir chat en móvil
+    return (
+      <button
+        style={{
+          position: 'fixed', bottom: 20, right: 20, zIndex: 10002,
+          background: '#232323', color: '#fff', borderRadius: 32, border: 'none',
+          padding: '14px 22px', fontWeight: 700, fontSize: 17, boxShadow: '0 2px 14px rgba(34,34,34,0.14)', cursor: 'pointer'
+        }}
+        onClick={() => setMobileOpen(true)}
+      >
+        💬 Chatea con Nema
+      </button>
+    );
+  }
+  if (isMobile && mobileOpen) {
+    // Layout móvil pantalla completa
+    return (
+      <div className="mobile-chat-layout" style={{
+        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'var(--card-bg, #faf9f6)', zIndex: 10010, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', boxShadow: '0 2px 24px 0 rgba(34,34,34,0.13)'
+      }}>
+        {/* Cabecera */}
+        <div style={{ background: '#232323', color: '#fff', padding: '13px 0 11px 0', textAlign: 'center', fontWeight: 800, fontSize: 19, letterSpacing: 1, position: 'relative' }}>
+          Nema
+          <button onClick={() => setMobileOpen(false)} style={{ position: 'absolute', right: 12, top: 8, background: 'none', border: 'none', color: '#fff', fontSize: 26, fontWeight: 700, cursor: 'pointer' }}>&times;</button>
+        </div>
+        {/* Mensajes */}
+        <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '18px 8px 8px 8px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+          {messages.map(renderMessage)}
+          <div ref={messagesEndRef} />
+        </div>
+        {/* Input */}
+        <form style={{ display: 'flex', alignItems: 'center', padding: '10px 8px 12px 8px', background: 'var(--card-bg, #faf9f6)', borderTop: '1px solid #eee', width: '100%', boxSizing: 'border-box' }} onSubmit={e => { e.preventDefault(); sendMessage(input); }}>
+          <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
+            <input
+              ref={inputRef}
+              placeholder="Escribe tu mensaje..."
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={loading}
+              style={{ width: '100%', borderRadius: 24, border: '1.5px solid #e0e0e0', fontSize: 18, padding: '12px 90px 12px 18px', background: '#fafbfc', boxShadow: 'none', outline: 'none', transition: 'border 0.2s', minWidth: 0 }}
+            />
+            <button type="submit" style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', height: 38, minWidth: 70, maxWidth: 100, fontWeight: 700, fontSize: 17, borderRadius: 20, background: 'var(--primary, #232323)', color: '#fff', border: 'none', boxShadow: '0 2px 8px 0 rgba(34,34,34,0.04)', cursor: loading ? 'wait' : 'pointer', transition: 'background 0.2s', overflow: 'hidden', whiteSpace: 'nowrap' }} disabled={loading}>
+              Enviar
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div style={{
