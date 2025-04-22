@@ -30,10 +30,11 @@ export default function ChatWidget() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    if ((isMobile && mobileOpen) || (!isMobile && messages.length > 1)) {
+    const shouldScroll = (!isMobile || mobileOpen) && messages.length > 1;
+    if (shouldScroll) {
       const timeout = setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }, 120);
+      }, 200);
       return () => clearTimeout(timeout);
     }
   }, [messages, loading, isMobile, mobileOpen]);
@@ -143,7 +144,7 @@ export default function ChatWidget() {
           display: 'flex',
           justifyContent: isUser ? 'flex-end' : 'flex-start',
           alignItems: 'flex-end',
-          marginBottom: 8,
+          marginBottom: 16,
         }}
       >
         {isBot && <div style={{ fontSize: 22, marginRight: 6 }}>🤖</div>}
@@ -214,19 +215,31 @@ export default function ChatWidget() {
         background: 'var(--card-bg, #faf9f6)', borderTop: '1px solid #eee'
       }} onSubmit={e => { e.preventDefault(); sendMessage(input); }}>
         <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
-          <input
-            ref={inputRef}
-            placeholder="Escribe tu mensaje..."
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={loading}
-            style={{
-              width: '100%', borderRadius: 24, border: '1.5px solid #e0e0e0',
-              fontSize: 18, padding: '12px 90px 12px 18px', background: '#fafbfc',
-              boxShadow: 'none', outline: 'none', transition: 'border 0.2s'
-            }}
-          />
+        <input
+  ref={inputRef}
+  placeholder="Escribe tu mensaje..."
+  value={input}
+  onChange={e => setInput(e.target.value)}
+  onKeyDown={handleKeyDown}
+  disabled={loading}
+  onFocus={() => {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 150);
+  }}
+  style={{
+    width: '100%',
+    borderRadius: 24,
+    border: '1.5px solid #e0e0e0',
+    fontSize: 18,
+    padding: '12px 90px 12px 18px',
+    background: '#fafbfc',
+    boxShadow: 'none',
+    outline: 'none',
+    transition: 'border 0.2s',
+  }}
+/>
+
           <button type="submit" style={{
             position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)',
             height: 38, minWidth: 70, fontWeight: 700, fontSize: 17,
