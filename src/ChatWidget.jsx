@@ -29,34 +29,37 @@ export default function ChatWidget() {
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600;
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Scroll + focus
   useEffect(() => {
-    const scrollToBottom = () => {
-      if (chatContainerRef.current && messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
-    };
-    scrollToBottom();
-    const t = setTimeout(() => {
-      scrollToBottom();
-      if (inputRef.current && (!isMobile || mobileOpen)) {
-        inputRef.current.focus({ preventScroll: true });
-      }
-    }, 200);
-    return () => clearTimeout(t);
-  }, [messages, loading, isMobile, mobileOpen]);
-
-  // Bloqueo de scroll fondo en móvil
-  useEffect(() => {
+    // Evitar scroll de fondo en móvil
     if (isMobile && mobileOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
+    // Scroll al último mensaje después del render (doble setTimeout para asegurar)
+    let t1 = setTimeout(() => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      if (inputRef.current && (!isMobile || mobileOpen)) {
+        inputRef.current.focus({ preventScroll: true });
+      }
+      // Segundo timeout para asegurar el scroll
+      if (isMobile && mobileOpen) {
+        setTimeout(() => {
+          if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+          }
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 200);
+      }
+    }, isMobile && mobileOpen ? 120 : 50);
     return () => {
-      document.body.style.overflow = '';
+      clearTimeout(t1);
+      if (isMobile && !mobileOpen) document.body.style.overflow = '';
     };
-  }, [isMobile, mobileOpen]);
+  }, [messages, isMobile, mobileOpen]);
 
   const sendMessage = async (text) => {
     if (!text.trim()) return;
@@ -72,17 +75,48 @@ export default function ChatWidget() {
     ]);
     setLoading(true);
     setInput('');
-    await new Promise((res) => setTimeout(res, 1800));
-    setMessages((msgs) => [
-      ...msgs,
-      {
-        position: 'left',
-        type: 'text',
-        text: '¡Esta es una respuesta simulada de Nema! (El backend está offline)',
-        date: new Date(),
-        title: 'Nema',
-      },
-    ]);
+    try {
+      const res = await fetch('/api/chat-proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, userId }),
+      });
+      const data = await res.json();
+      // Soporta respuesta como array o string
+      let reply = '';
+      if (data.raw) {
+        reply = data.raw;
+      } else if (Array.isArray(data) && data[0]?.response) {
+        reply = data[0].response;
+      } else if (typeof data === 'object' && data.response) {
+        reply = data.response;
+      } else if (typeof data === 'string') {
+        reply = data;
+      } else {
+        reply = 'Gracias, tu mensaje ha sido recibido.';
+      }
+      setMessages((msgs) => [
+        ...msgs,
+        {
+          position: 'left',
+          type: 'text',
+          text: reply,
+          date: new Date(),
+          title: 'Nema',
+        },
+      ]);
+    } catch (e) {
+      setMessages((msgs) => [
+        ...msgs,
+        {
+          position: 'left',
+          type: 'text',
+          text: 'Hubo un error al conectar con el agente. Intenta de nuevo más tarde.',
+          date: new Date(),
+          title: 'Nema',
+        },
+      ]);
+    }
     setLoading(false);
   };
 
@@ -96,68 +130,48 @@ export default function ChatWidget() {
   const renderMessage = (msg, i) => {
     const isBot = msg.position === 'left';
     const isUser = msg.position === 'right';
-
-    if (msg.thinking) {
-      return (
-        <div key={`thinking-${i}`} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: 8 }}>
-          <div style={{ fontSize: 22, marginRight: 6 }}>🤖</div>
-          <div style={{
-            background: '#e0e7ef',
-            color: '#444',
-            borderRadius: 18,
-            padding: '10px 18px',
-            fontSize: 17,
-            maxWidth: '72vw',
-            boxShadow: '0 1px 6px rgba(34,34,34,0.04)',
-            fontStyle: 'italic',
-            opacity: 0.8,
-            animation: 'fadeInUp 0.3s ease-out'
-          }}>
-            Nema está pensando<span className="thinking-dots"></span>
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div
         key={i}
         style={{
-          animation: 'fadeInUp 0.3s ease-out',
           display: 'flex',
           justifyContent: isUser ? 'flex-end' : 'flex-start',
           alignItems: 'flex-end',
-          marginBottom: 8,
+          marginBottom: 10,
         }}
       >
-        {isBot && <div style={{ fontSize: 22, marginRight: 6 }}>🤖</div>}
-        <div style={{
-          background: isUser ? '#444' : '#e0e7ef',
-          color: isUser ? '#fff' : '#444',
-          borderRadius: 18,
-          padding: '10px 18px',
-          fontSize: 17,
-          maxWidth: '72vw',
-          boxShadow: '0 1px 6px rgba(34,34,34,0.04)',
-        }}>
+        {isBot && (
+          <span style={{ fontSize: 22, marginRight: 6, userSelect: 'none' }} role="img" aria-label="Nema">🤖</span>
+        )}
+        <div
+          style={{
+            background: isBot ? 'var(--bubble-bot, #e7eafc)' : 'var(--bubble-user, #232323)',
+            color: isBot ? '#222' : '#fff',
+            borderRadius: 18,
+            border: 'none',
+            padding: '12px 18px',
+            fontSize: 18,
+            maxWidth: '80%',
+            fontFamily: 'Inter, Arial, sans-serif',
+            boxShadow: '0 2px 8px 0 rgba(34,34,34,0.04)',
+            wordBreak: 'break-word',
+            lineHeight: 1.6,
+          }}
+        >
           {msg.text}
         </div>
       </div>
     );
   };
 
-  const messagesToShow = loading
-    ? [...messages, { position: 'left', thinking: true }]
-    : messages;
-
   if (isMobile && !mobileOpen) {
+    // Botón flotante para abrir chat en móvil
     return (
       <button
         style={{
           position: 'fixed', bottom: 20, right: 20, zIndex: 10002,
           background: '#232323', color: '#fff', borderRadius: 32, border: 'none',
-          padding: '14px 22px', fontWeight: 700, fontSize: 17,
-          boxShadow: '0 2px 14px rgba(34,34,34,0.14)', cursor: 'pointer'
+          padding: '14px 22px', fontWeight: 700, fontSize: 17, boxShadow: '0 2px 14px rgba(34,34,34,0.14)', cursor: 'pointer'
         }}
         onClick={() => setMobileOpen(true)}
       >
@@ -165,34 +179,24 @@ export default function ChatWidget() {
       </button>
     );
   }
-
   if (isMobile && mobileOpen) {
+    // Layout móvil pantalla completa
     return (
       <div className="mobile-chat-layout" style={{
-        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100dvh',
-        background: 'var(--card-bg, #faf9f6)', zIndex: 10010,
-        display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-        boxShadow: '0 2px 24px 0 rgba(34,34,34,0.13)'
+        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'var(--card-bg, #faf9f6)', zIndex: 10010, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', boxShadow: '0 2px 24px 0 rgba(34,34,34,0.13)'
       }}>
-        <div style={{ background: '#232323', color: '#fff', padding: '13px 0 11px', textAlign: 'center', fontWeight: 800, fontSize: 19, letterSpacing: 1, position: 'relative', flexShrink: 0 }}>
+        {/* Cabecera */}
+        <div style={{ background: '#232323', color: '#fff', padding: '13px 0 11px 0', textAlign: 'center', fontWeight: 800, fontSize: 19, letterSpacing: 1, position: 'relative' }}>
           Nema
           <button onClick={() => setMobileOpen(false)} style={{ position: 'absolute', right: 12, top: 8, background: 'none', border: 'none', color: '#fff', fontSize: 26, fontWeight: 700, cursor: 'pointer' }}>&times;</button>
         </div>
-        <div ref={chatContainerRef} style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '18px 8px 8px 8px',
-          maxHeight: 'calc(100dvh - 64px - 64px)',
-          scrollBehavior: 'smooth'
-        }}>
-          {messagesToShow.map(renderMessage)}
+        {/* Mensajes */}
+        <div ref={chatContainerRef} style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '18px 8px 8px 8px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', background: 'var(--card-bg, #faf9f6)' }}>
+          {messages.map(renderMessage)}
           <div ref={messagesEndRef} />
         </div>
-        <form style={{
-          position: 'sticky', bottom: 0, zIndex: 10020,
-          background: 'var(--card-bg, #faf9f6)',
-          padding: '10px 8px 12px 8px', borderTop: '1px solid #eee'
-        }} onSubmit={e => { e.preventDefault(); sendMessage(input); }}>
+        {/* Input */}
+        <form style={{ display: 'flex', alignItems: 'center', padding: '10px 8px 12px 8px', background: 'var(--card-bg, #faf9f6)', borderTop: '1px solid #eee', width: '100%', boxSizing: 'border-box' }} onSubmit={e => { e.preventDefault(); sendMessage(input); }}>
           <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
             <input
               ref={inputRef}
@@ -201,18 +205,9 @@ export default function ChatWidget() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={loading}
-              style={{
-                width: '100%', borderRadius: 24, border: '1.5px solid #e0e0e0',
-                fontSize: 18, padding: '12px 90px 12px 18px', background: '#fafbfc',
-                boxShadow: 'none', outline: 'none', transition: 'border 0.2s'
-              }}
+              style={{ width: '100%', borderRadius: 24, border: '1.5px solid #e0e0e0', fontSize: 18, padding: '12px 90px 12px 18px', background: '#fafbfc', boxShadow: 'none', outline: 'none', transition: 'border 0.2s', minWidth: 0 }}
             />
-            <button type="submit" style={{
-              position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)',
-              height: 38, minWidth: 70, fontWeight: 700, fontSize: 17,
-              borderRadius: 20, background: '#232323', color: '#fff', border: 'none',
-              cursor: loading ? 'wait' : 'pointer'
-            }} disabled={loading}>
+            <button type="submit" style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', height: 38, minWidth: 70, maxWidth: 100, fontWeight: 700, fontSize: 17, borderRadius: 20, background: 'var(--primary, #232323)', color: '#fff', border: 'none', boxShadow: '0 2px 8px 0 rgba(34,34,34,0.04)', cursor: loading ? 'wait' : 'pointer', transition: 'background 0.2s', overflow: 'hidden', whiteSpace: 'nowrap' }} disabled={loading}>
               Enviar
             </button>
           </div>
@@ -223,72 +218,102 @@ export default function ChatWidget() {
 
   return (
     <div style={{
-      background: 'var(--card-bg, #faf9f6)', borderRadius: 18,
-      boxShadow: '0 2px 24px 0 rgba(34,34,34,0.07)', width: '100%',
-      minHeight: 320, height: 'auto', display: 'flex', flexDirection: 'column',
-      justifyContent: 'flex-end', overflow: 'hidden',
-      transition: 'min-height 1.2s cubic-bezier(.4,1.2,.5,1)'
+      background: 'var(--card-bg, #faf9f6)',
+      borderRadius: 18,
+      boxShadow: '0 2px 24px 0 rgba(34,34,34,0.07)',
+      width: '100%',
+      minHeight: 320,
+      maxHeight: 520,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-end',
+      position: 'relative',
     }}>
       <div ref={chatContainerRef} style={{
-        flex: 1, overflowY: 'auto', padding: '24px 16px 12px 16px',
-        background: 'var(--card-bg, #faf9f6)', scrollBehavior: 'smooth'
+        flex: 1,
+        minHeight: 180,
+        maxHeight: 320,
+        width: '100%',
+        overflowY: 'auto',
+        padding: '18px 8px 8px 8px',
+        background: 'var(--card-bg, #faf9f6)',
+        borderBottom: '1px solid #eee',
+        transition: 'background 0.2s',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        minHeight: 0,
       }}>
-        {messagesToShow.map(renderMessage)}
+        {messages.map(renderMessage)}
         <div ref={messagesEndRef} />
       </div>
-      <form style={{
-        display: 'flex', alignItems: 'center', padding: '10px 16px 14px 16px',
-        background: 'var(--card-bg, #faf9f6)', borderTop: '1px solid #eee'
-      }} onSubmit={e => { e.preventDefault(); sendMessage(input); }}>
-        <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
+      <form
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '10px 8px 12px 8px',
+          background: 'var(--card-bg, #faf9f6)',
+          borderTop: '1px solid #eee',
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+        onSubmit={e => { e.preventDefault(); sendMessage(input); }}
+      >
+        <div style={{
+          position: 'relative',
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+        }}>
           <input
             ref={inputRef}
             placeholder="Escribe tu mensaje..."
+            multiline={false}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={loading}
             style={{
-              width: '100%', borderRadius: 24, border: '1.5px solid #e0e0e0',
-              fontSize: 18, padding: '12px 90px 12px 18px', background: '#fafbfc',
-              boxShadow: 'none', outline: 'none', transition: 'border 0.2s'
+              width: '100%',
+              borderRadius: 24,
+              border: '1.5px solid #e0e0e0',
+              fontSize: 18,
+              padding: '12px 90px 12px 18px',
+              background: '#fafbfc',
+              boxShadow: 'none',
+              outline: 'none',
+              transition: 'border 0.2s',
+              minWidth: 0,
             }}
           />
-          <button type="submit" style={{
-            position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)',
-            height: 38, minWidth: 70, fontWeight: 700, fontSize: 17,
-            borderRadius: 20, background: '#232323', color: '#fff', border: 'none',
-            cursor: loading ? 'wait' : 'pointer'
-          }} disabled={loading}>
+          <button
+            type="submit"
+            style={{
+              position: 'absolute',
+              right: 6,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              height: 38,
+              minWidth: 70,
+              maxWidth: 100,
+              fontWeight: 700,
+              fontSize: 17,
+              borderRadius: 20,
+              background: 'var(--primary, #232323)',
+              color: '#fff',
+              border: 'none',
+              boxShadow: '0 2px 8px 0 rgba(34,34,34,0.04)',
+              cursor: loading ? 'wait' : 'pointer',
+              transition: 'background 0.2s',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+            }}
+            disabled={loading}
+          >
             Enviar
           </button>
         </div>
       </form>
-
-      {/* Animaciones globales */}
-      <style>
-        {`
-          @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-
-          @keyframes dots {
-            0% { content: ''; }
-            33% { content: '.'; }
-            66% { content: '..'; }
-            100% { content: '...'; }
-          }
-
-          .thinking-dots::after {
-            content: '';
-            display: inline-block;
-            animation: dots 1.2s steps(3, end) infinite;
-            font-weight: bold;
-            margin-left: 4px;
-          }
-        `}
-      </style>
     </div>
   );
 }
