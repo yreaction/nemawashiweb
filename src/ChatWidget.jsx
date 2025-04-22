@@ -28,31 +28,16 @@ export default function ChatWidget() {
   const userId = getUserId();
 
   useEffect(() => {
-    // En móvil, re-enfoca el input si el usuario toca el área de mensajes o tras recibir mensaje
-    const handleTouch = () => {
-      if (window.innerWidth <= 600 && inputRef.current) {
-        inputRef.current.focus({ preventScroll: true });
-      }
-    };
-    const chatDiv = chatContainerRef.current;
-    if (chatDiv) {
-      chatDiv.addEventListener('touchend', handleTouch);
-    }
-    // Scroll al último mensaje después del render
+    // Scroll to the last message, pero espera a que el DOM se actualice
     setTimeout(() => {
       if (chatContainerRef.current) {
         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
       }
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
       if (inputRef.current) {
-        inputRef.current.focus({ preventScroll: true });
+        inputRef.current.focus();
       }
-    }, 50);
-    return () => {
-      if (chatDiv) {
-        chatDiv.removeEventListener('touchend', handleTouch);
-      }
-    };
+    }, 50); // Espera breve para asegurar render
   }, [messages]);
 
   const sendMessage = async (text) => {
