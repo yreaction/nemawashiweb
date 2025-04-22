@@ -38,7 +38,7 @@ export default function ChatWidget() {
         if (isMobile && mobileOpen) {
           setTimeout(() => {
             inputRef.current?.focus({ preventScroll: true });
-          }, 100);
+          }, 300);
         }
   
       }, 200);
