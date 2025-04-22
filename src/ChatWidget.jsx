@@ -39,7 +39,7 @@ export default function ChatWidget() {
     scrollToBottom();
     const t = setTimeout(() => {
       scrollToBottom();
-      if (inputRef.current && (!isMobile || mobileOpen)) {
+      if (inputRef.current && isMobile && mobileOpen) {
         inputRef.current.focus({ preventScroll: true });
       }
     }, 200);
