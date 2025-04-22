@@ -30,17 +30,17 @@ export default function ChatWidget() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    // Scroll to the last message, pero espera a que el DOM se actualice
+    // Scroll al último mensaje después del render
     setTimeout(() => {
       if (chatContainerRef.current) {
         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
       }
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      if (inputRef.current) {
-        inputRef.current.focus();
+      if (inputRef.current && (!isMobile || mobileOpen)) {
+        inputRef.current.focus({ preventScroll: true });
       }
-    }, 50); // Espera breve para asegurar render
-  }, [messages]);
+    }, isMobile && mobileOpen ? 120 : 50); // Más delay en móvil para asegurar render
+  }, [messages, isMobile, mobileOpen]);
 
   const sendMessage = async (text) => {
     if (!text.trim()) return;
@@ -172,7 +172,7 @@ export default function ChatWidget() {
           <button onClick={() => setMobileOpen(false)} style={{ position: 'absolute', right: 12, top: 8, background: 'none', border: 'none', color: '#fff', fontSize: 26, fontWeight: 700, cursor: 'pointer' }}>&times;</button>
         </div>
         {/* Mensajes */}
-        <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '18px 8px 8px 8px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+        <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '18px 8px 8px 8px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', minHeight: 0 }}>
           {messages.map(renderMessage)}
           <div ref={messagesEndRef} />
         </div>
@@ -201,17 +201,15 @@ export default function ChatWidget() {
     <div style={{
       background: 'var(--card-bg, #faf9f6)',
       borderRadius: 18,
-      boxShadow: '0 4px 24px 0 rgba(34,34,34,0.07)',
-      padding: 0,
-      maxWidth: '100%',
+      boxShadow: '0 2px 24px 0 rgba(34,34,34,0.07)',
+      maxWidth: 420,
       width: '100%',
-      margin: '0 auto',
+      minHeight: 320,
+      maxHeight: 520,
       display: 'flex',
       flexDirection: 'column',
-      minHeight: 340,
-      border: '1.5px solid #f0f0f0',
-      overflow: 'hidden',
-      fontFamily: 'Inter, Arial, sans-serif',
+      justifyContent: 'flex-end',
+      position: 'relative',
     }}>
       <div ref={chatContainerRef} style={{
         flex: 1,
@@ -226,8 +224,8 @@ export default function ChatWidget() {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
+        minHeight: 0,
       }}>
-        {/* Custom message bubbles */}
         {messages.map(renderMessage)}
         <div ref={messagesEndRef} />
       </div>
@@ -291,10 +289,10 @@ export default function ChatWidget() {
               transition: 'background 0.2s',
               overflow: 'hidden',
               whiteSpace: 'nowrap',
-              padding: '0 18px',
             }}
+            disabled={loading}
           >
-            {loading ? '...' : 'Enviar'}
+            Enviar
           </button>
         </div>
       </form>
