@@ -217,4 +217,36 @@ footer {
   .use-cases { padding: 36px 6px 18px 6px; }
   .philosophy { padding: 28px 6px 16px 6px; }
   .sima-placeholder { padding: 16px 8px; }
+  /* Mantener el input del chat siempre abajo en móvil */
+  #sima-chat-widget > div {
+    min-height: 320px;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+  }
+  #sima-chat-widget input[type="text"] {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw !important;
+    max-width: 100vw;
+    z-index: 9999;
+    border-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow: 0 -2px 12px 0 rgba(0,0,0,0.10);
+  }
+  #sima-chat-widget form {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw !important;
+    max-width: 100vw;
+    z-index: 9999;
+    background: var(--card-bg, #faf9f6);
+    border-top: 1px solid #eee;
+    box-shadow: 0 -2px 12px 0 rgba(0,0,0,0.10);
+  }
 }

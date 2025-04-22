@@ -24,6 +24,7 @@ export default function ChatWidget() {
   const [loading, setLoading] = useState(false);
   const chatContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
   const userId = getUserId();
 
   useEffect(() => {
@@ -32,6 +33,10 @@ export default function ChatWidget() {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    // Mantener el foco en el input después de enviar
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   }, [messages]);
 
   const sendMessage = async (text) => {
@@ -187,6 +192,7 @@ export default function ChatWidget() {
           alignItems: 'center',
         }}>
           <input
+            ref={inputRef}
             placeholder="Escribe tu mensaje..."
             multiline={false}
             value={input}

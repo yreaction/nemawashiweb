@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nemawashi AI - Automatización IA para PYMEs</title>
-  <meta name="description" content="Automatización, agentes y soluciones de IA prácticas para PYMEs. Descubre cómo ahorrar tiempo hablando con Sima, nuestro agente IA." />
+  <meta name="description" content="Automatización, agentes y soluciones de IA prácticas para PYMEs. Descubre cómo ahorrar tiempo hablando con Nema, nuestro agente IA." />
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/png" href="images/nemaWashiLogo.png">
   <!-- Tipografía Google Fonts -->
@@ -18,10 +18,10 @@
 
   <!-- Hero Section -->
   <section class="hero">
-    <h1>¿Pierdes tiempo en tareas repetitivas? Habla con Sima</h1>
-    <p>Soy Sima, tu asistente IA. Chatea conmigo 2 minutos y descubre <strong>GRATIS</strong> cómo la automatización puede eliminar tareas tediosas en tu día a día.</p>
+    <h1>¿Pierdes tiempo en tareas repetitivas? Habla con Nema</h1>
+    <p>Soy Nema, tu asistente IA. Chatea conmigo 2 minutos y descubre <strong>GRATIS</strong> cómo la automatización puede eliminar tareas tediosas en tu día a día.</p>
     <div class="sima-placeholder" id="sima-chat-placeholder">
-      <!-- Aquí se integrará el widget de chat de Sima -->
+      <!-- Aquí se integrará el widget de chat de Nema -->
       <div id="sima-chat-widget"></div>
     </div>
   </section>
@@ -71,10 +71,47 @@
   <footer>
     <div class="footer-links">
       <a href="#" title="Política de Privacidad">Política de Privacidad</a>
-      <a href="#" title="Contacto">Contacto</a>
+      <a href="#" title="Contacto" id="contacto-link">Contacto</a>
     </div>
     <div class="copyright"> 2025 Nemawashi AI. Todos los derechos reservados.</div>
   </footer>
+  <div id="contact-modal" style="display:none;position:fixed;z-index:10001;left:0;top:0;width:100vw;height:100vh;background:rgba(34,34,34,0.35);justify-content:center;align-items:center;">
+    <form id="contact-form" style="background:#fff;padding:32px 24px;border-radius:18px;box-shadow:0 8px 32px 0 rgba(34,34,34,0.13);max-width:350px;width:90vw;display:flex;flex-direction:column;gap:18px;position:relative;">
+      <button type="button" id="close-contact-modal" style="position:absolute;top:10px;right:14px;font-size:1.5rem;background:none;border:none;cursor:pointer;">&times;</button>
+      <h2 style="margin-bottom:8px;color:#444;font-size:1.2rem;font-weight:700;">Contacto</h2>
+      <label for="contact-email" style="font-size:1rem;">Tu email</label>
+      <input type="email" id="contact-email" name="email" required style="padding:10px 12px;font-size:1rem;border-radius:8px;border:1px solid #e0e0e0;" />
+      <label for="contact-msg" style="font-size:1rem;">Mensaje</label>
+      <textarea id="contact-msg" name="msg" required rows="4" style="padding:10px 12px;font-size:1rem;border-radius:8px;border:1px solid #e0e0e0;"></textarea>
+      <button type="submit" style="background:#444;color:#fff;padding:12px 0;border-radius:8px;font-size:1.07rem;font-weight:700;border:none;cursor:pointer;">Enviar</button>
+      <div id="contact-status" style="font-size:1rem;margin-top:8px;color:#2a7a2a;display:none;"></div>
+    </form>
+  </div>
+  <script>
+    // Modal contacto
+    const contactoLink = document.getElementById('contacto-link');
+    const contactModal = document.getElementById('contact-modal');
+    const closeContactModal = document.getElementById('close-contact-modal');
+    contactoLink.onclick = (e) => { e.preventDefault(); contactModal.style.display = 'flex'; };
+    closeContactModal.onclick = () => { contactModal.style.display = 'none'; };
+    contactModal.onclick = (e) => { if (e.target === contactModal) contactModal.style.display = 'none'; };
+    // Enviar email
+    document.getElementById('contact-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('contact-email').value;
+      const msg = document.getElementById('contact-msg').value;
+      const statusDiv = document.getElementById('contact-status');
+      statusDiv.style.display = 'none';
+      try {
+        const res = await fetch('mailto:info@nemawashi.ia?subject=Contacto%20Web&body=' + encodeURIComponent(msg + '\n\nEmail: ' + email));
+        statusDiv.textContent = 'Mensaje enviado (abre tu cliente de correo para completar el envío)';
+        statusDiv.style.display = 'block';
+      } catch {
+        statusDiv.textContent = 'No se pudo abrir el cliente de correo. Escribe a info@nemawashi.ia';
+        statusDiv.style.display = 'block';
+      }
+    };
+  </script>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>
