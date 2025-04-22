@@ -62,6 +62,7 @@ export default function ChatWidget() {
   }, [messages, isMobile, mobileOpen]);
 
   const sendMessage = async (text) => {
+    console.log('sendMessage called with:', text);
     if (!text.trim()) return;
     setMessages((msgs) => [
       ...msgs,
