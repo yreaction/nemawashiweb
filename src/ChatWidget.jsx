@@ -28,15 +28,16 @@ export default function ChatWidget() {
   const userId = getUserId();
 
   useEffect(() => {
-    // Scroll to the last message, but keep input always visible (at the bottom)
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    // Mantener el foco en el input después de enviar
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    // Scroll to the last message, pero espera a que el DOM se actualice
+    setTimeout(() => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 50); // Espera breve para asegurar render
   }, [messages]);
 
   const sendMessage = async (text) => {
@@ -168,6 +169,9 @@ export default function ChatWidget() {
         background: 'var(--card-bg, #faf9f6)',
         borderBottom: '1px solid #eee',
         transition: 'background 0.2s',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
       }}>
         {/* Custom message bubbles */}
         {messages.map(renderMessage)}
