@@ -326,7 +326,7 @@ export default function ChatWidget() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={loading}
-              maxLength={300}
+              maxLength={150}
               style={{
                 width: '100%', 
                 borderRadius: 24, 
@@ -410,7 +410,7 @@ export default function ChatWidget() {
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={loading}
-            maxLength={300}
+            maxLength={150}
             style={{
               width: '100%', 
               borderRadius: 24, 
