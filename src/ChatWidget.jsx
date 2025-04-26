@@ -110,7 +110,6 @@ export default function ChatWidget() {
       text:
         `👋 ¡Hola, soy **Nema**!\n\n` +
         `Dime a qué te dedicas, y te enseñaré cómo puedes ahorrar tiempo cada semana automatizando tareas, **sin que necesites conocimientos técnicos**.\n\n` +
-        `Además, puedes automatizar tareas **en minutos**, conectar tus herramientas favoritas **sin código** y recibir **soporte humano** si lo necesitas.\n\nAquí tienes un ejemplo de lo que podemos hacer:\n\n---\n` +
         getRandomWelcomeCase() + '\n\n---',
       date: new Date(),
       title: 'Nema',
@@ -446,10 +445,7 @@ export default function ChatWidget() {
           style={{ 
             padding: '10px 8px 12px 8px', 
             background: 'var(--card-bg, #faf9f6)', 
-            borderTop: '1px solid #eee',
-            position: 'sticky',
-            bottom: 0,
-            zIndex: 10021
+            borderTop: '1px solid #eee' 
           }}
         >
           <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
@@ -478,6 +474,23 @@ export default function ChatWidget() {
                 border: '1.5px solid #e0e0e0',
               }}
             />
+            {/* Character counter */}
+            <span style={{
+                position: 'absolute',
+                right: 88,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                fontSize: 13,
+                color: input.length >= 150 ? '#d32f2f' : '#888',
+                fontFamily: 'Manifold',
+                background: 'rgba(255,255,255,0.8)',
+                borderRadius: 10,
+                padding: '2px 8px',
+                pointerEvents: 'none',
+                zIndex: 1
+              }}>
+              {input.length}/150
+            </span>
             <button 
               type="submit" 
               style={{
@@ -567,6 +580,23 @@ export default function ChatWidget() {
               border: '1.5px solid #e0e0e0',
             }}
           />
+          {/* Character counter */}
+          <span style={{
+              position: 'absolute',
+              right: 88,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              fontSize: 13,
+              color: input.length >= 150 ? '#d32f2f' : '#888',
+              fontFamily: 'Manifold',
+              background: 'rgba(255,255,255,0.8)',
+              borderRadius: 10,
+              padding: '2px 8px',
+              pointerEvents: 'none',
+              zIndex: 1
+            }}>
+            {input.length}/150
+          </span>
           <button 
             type="submit" 
             style={{
