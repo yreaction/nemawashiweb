@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const getUserId = () => {
   let id = localStorage.getItem('nemawashi_user_id');
@@ -237,7 +239,9 @@ export default function ChatWidget() {
           wordBreak: 'break-word',
           fontFamily: 'Manifold',
           fontWeight: isBot ? 400 : 500
-        }}>{msg.text}</div>
+        }}>
+          {msg.markdown ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown> : msg.text}
+        </div>
       </div>
     );
   };
