@@ -455,22 +455,26 @@ export default function ChatWidget() {
           <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
             <input
               ref={inputRef}
-              placeholder="¿A qué te dedicas?"
+              type="text"
               value={input}
-              onChange={e => setInput(e.target.value)}
+              onChange={e => {
+                // Limitar manualmente a 150 caracteres para evitar pegar texto largo
+                if (e.target.value.length <= 150) setInput(e.target.value);
+              }}
               onKeyDown={handleKeyDown}
               disabled={loading}
               maxLength={150}
+              placeholder="¿A qué te dedicas?"
               style={{
                 fontFamily: 'Manifold',
-                fontSize: 18, 
-                padding: '12px 90px 12px 18px', 
+                fontSize: 18,
+                padding: '12px 90px 12px 18px',
                 background: '#fafbfc',
-                boxShadow: 'none', 
-                outline: 'none', 
+                boxShadow: 'none',
+                outline: 'none',
                 transition: 'border 0.2s',
-                width: '100%', 
-                borderRadius: 24, 
+                width: '100%',
+                borderRadius: 24,
                 border: '1.5px solid #e0e0e0',
               }}
             />
@@ -540,12 +544,16 @@ export default function ChatWidget() {
         <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
           <input
             ref={inputRef}
-            placeholder="¿A qué te dedicas?"
+            type="text"
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={e => {
+              // Limitar manualmente a 150 caracteres para evitar pegar texto largo
+              if (e.target.value.length <= 150) setInput(e.target.value);
+            }}
             onKeyDown={handleKeyDown}
             disabled={loading}
             maxLength={150}
+            placeholder="¿A qué te dedicas?"
             style={{
               fontFamily: 'Manifold',
               fontSize: 18, 
