@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import '../styles/chat-markdown-table.css';
+import '../styles/welcome-glow.css';
 
 const getUserId = () => {
   let id = localStorage.getItem('nemawashi_user_id');
@@ -12,22 +14,91 @@ const getUserId = () => {
   return id;
 };
 
-// Casos de ejemplo para el mensaje de bienvenida
+// Casos de ejemplo para el mensaje de bienvenida (markdown puro, sin HTML inline)
 const welcomeCases = [
-  `🦷 **Clínica Dental**  \n| Automatización           | Beneficio                        |\n|:-------------------------|:---------------------------------|\n| Recordatorios de citas    | Menos cancelaciones de última hora |\n| Mensajes post-consulta    | Mejor seguimiento del paciente    |\n| Registro automático       | Ahorro de tiempo administrativo   |`,
-  `🧘‍♀️ **Centro de Fisioterapia**  \n| Automatización              | Beneficio                      |\n|:----------------------------|:-------------------------------|\n| Confirmaciones de reservas  | Organización de la agenda     |\n| Recordatorio de ejercicios  | Mejor adherencia de tratamientos |\n| Facturación automática      | Menos errores contables        |`,
-  `🏡 **Agencia Inmobiliaria**  \n| Automatización                   | Beneficio                      |\n|:----------------------------------|:-------------------------------|\n| Captura de leads automática       | Más clientes potenciales        |\n| Seguimiento de visitas            | Cierre más rápido de ventas     |\n| Actualización de fichas de propiedades | Menos errores en anuncios |`,
-  `💼 **Consultora o Asesoría**  \n| Automatización             | Beneficio                      |\n|:----------------------------|:-------------------------------|\n| Agendamiento de reuniones   | Menos gestión manual           |\n| Facturación automática      | Control financiero mejorado    |\n| Seguimiento de proyectos    | Clientes mejor informados      |`,
-  `🛒 **Tienda Online (Ecommerce)**  \n| Automatización               | Beneficio                      |\n|:-----------------------------|:-------------------------------|\n| Emails de carrito abandonado | Recuperación de ventas         |\n| Actualizaciones de envío     | Mejor experiencia de cliente   |\n| Chatbot 24/7                 | Atención sin interrupciones    |`,
-  `🏥 **Clínica Estética o de Salud**  \n| Automatización             | Beneficio                        |\n|:----------------------------|:---------------------------------|\n| Recordatorios de citas      | Menos ausencias                 |\n| Encuestas post-servicio     | Mejor feedback del cliente      |\n| Seguimiento de tratamientos | Fidelización de pacientes       |`,
-  `🎓 **Academias y Formación**  \n| Automatización             | Beneficio                       |\n|:----------------------------|:--------------------------------|\n| Inscripción automática      | Ahorro de gestión administrativa |\n| Recordatorio de clases      | Mejor asistencia de alumnos     |\n| Envío de materiales         | Mejor preparación del alumno    |`,
-  `📸 **Fotógrafos y Creativos**  \n| Automatización             | Beneficio                         |\n|:----------------------------|:----------------------------------|\n| Gestión de reservas         | Mejor organización de sesiones   |\n| Confirmaciones automáticas  | Menos pérdidas de tiempo         |\n| Entrega de galerías online  | Experiencia cliente más fluida   |`,
-  `🍽️ **Restaurantes y Catering**  \n| Automatización             | Beneficio                        |\n|:----------------------------|:---------------------------------|\n| Reservas automáticas        | Menos llamadas manuales          |\n| Confirmaciones vía WhatsApp | Menos cancelaciones              |\n| Promociones personalizadas  | Más fidelización de clientes     |`,
-  `🧑‍⚖️ **Abogados y Despachos Jurídicos**  \n| Automatización             | Beneficio                        |\n|:----------------------------|:---------------------------------|\n| Seguimiento de casos        | Mejor control de procesos legales|\n| Recordatorio de audiencias  | Reducción de olvidos o errores    |\n| Envío de documentos         | Más eficiencia en la comunicación|`,
+  `🦷 **Clínica Dental**\n\n### 📝 Automatización\nRegistro automático\n\n### ⏰ Beneficio\nAhorro de tiempo administrativo`,
+
+  `🧘‍♀️ **Centro de Fisioterapia**\n\n### 📝 Automatización\nFacturación automática\n\n### ⏰ Beneficio\nMenos errores contables`,
+
+  `🏡 **Agencia Inmobiliaria**\n\n### 📝 Automatización\nCaptura de leads automática\n\n### ⏰ Beneficio\nMás clientes potenciales`,
+
+  `💼 **Consultora o Asesoría**\n\n### 📝 Automatización\nAgendamiento de reuniones\n\n### ⏰ Beneficio\nMenos gestión manual`,
+
+  `🛒 **Tienda Online (Ecommerce)**\n\n### 📝 Automatización\nActualizaciones de envío\n\n### ⏰ Beneficio\nMejor experiencia de cliente`,
+
+  `🏥 **Clínica Estética o de Salud**\n\n### 📝 Automatización\nEncuestas post-servicio\n\n### ⏰ Beneficio\nMejor feedback del cliente`,
+
+  `🎓 **Academias y Formación**\n\n### 📝 Automatización\nInscripción automática\n\n### ⏰ Beneficio\nAhorro de gestión administrativa`,
+
+  `📸 **Fotógrafos y Creativos**\n\n### 📝 Automatización\nEntrega de galerías online\n\n### ⏰ Beneficio\nExperiencia cliente más fluida`,
+
+  `🍽️ **Restaurantes y Catering**\n\n### 📝 Automatización\nPromociones personalizadas\n\n### ⏰ Beneficio\nMás fidelización de clientes`,
+
+  `🧑‍⚖️ **Abogados y Despachos Jurídicos**\n\n### 📝 Automatización\nEnvío de documentos\n\n### ⏰ Beneficio\nMás eficiencia en la comunicación`,
 ];
 
+// Helper para bienvenida: devuelve el string tal cual
+function getSingleRowWelcomeCase(markdown) {
+  return markdown;
+}
+
 function getRandomWelcomeCase() {
-  return welcomeCases[Math.floor(Math.random() * welcomeCases.length)];
+  const raw = welcomeCases[Math.floor(Math.random() * welcomeCases.length)];
+  return getSingleRowWelcomeCase(raw);
+}
+
+function flattenCellContent(content) {
+  if (content == null) return '';
+  if (typeof content === 'string' || typeof content === 'number') return content;
+  if (Array.isArray(content)) return content.map(flattenCellContent).join('');
+  if (typeof content === 'object' && content.props && content.props.children)
+    return flattenCellContent(content.props.children);
+  return '';
+}
+
+function MarkdownTable({node, ...props}) {
+  // Header cells (th)
+  const headerRow = props.children[0];
+  const headerCells = headerRow && headerRow.props && headerRow.props.children
+    ? React.Children.toArray(headerRow.props.children).filter(Boolean)
+    : [];
+  // Body rows (tr)
+  const bodyRows = props.children.slice(1).filter(Boolean);
+
+  return (
+    <table className="chat-markdown-table">
+      <thead>
+        <tr>
+          {headerCells.map((th, i) => (
+            <th key={i} style={{minWidth: i === 1 ? 18 : 120, padding: '7px 18px', textAlign: i === 1 ? 'center' : 'left'}}>{flattenCellContent(th.props.children)}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {bodyRows.map((row, i) => {
+          if (!row || !row.props || !row.props.children) return null;
+          const cells = React.Children.toArray(row.props.children).filter(Boolean);
+          return (
+            <tr key={i}>
+              {cells.map((cell, j) => {
+                let cellContent = flattenCellContent(cell.props.children);
+                // Si es la columna vacía, deja el td vacío
+                if (j === 1) {
+                  return <td key={j} style={{minWidth: 18, padding: '7px 18px'}}></td>;
+                }
+                return (
+                  <td key={j} className={j === 0 ? 'tick' : j === 2 ? 'benefit' : ''} style={{padding: '7px 18px'}}>
+                    {j === 0 ? <span className="tick">✔</span> : null}
+                    {cellContent}
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
 }
 
 export default function ChatWidget() {
@@ -37,7 +108,10 @@ export default function ChatWidget() {
       type: 'text',
       markdown: true,
       text:
-        `👋 ¡Hola, soy **Nema**!\n\nDime a qué te dedicas, y te enseñaré cómo puedes ahorrar tiempo cada semana automatizando tareas.\n\nAquí tienes un ejemplo de lo que podemos hacer:\n\n---\n` + getRandomWelcomeCase() + '\n\n---',
+        `👋 ¡Hola, soy **Nema**!\n\n` +
+        `Dime a qué te dedicas, y te enseñaré cómo puedes ahorrar tiempo cada semana automatizando tareas, **sin que necesites conocimientos técnicos**.\n\n` +
+        `Además, puedes automatizar tareas **en minutos**, conectar tus herramientas favoritas **sin código** y recibir **soporte humano** si lo necesitas.\n\nAquí tienes un ejemplo de lo que podemos hacer:\n\n---\n` +
+        getRandomWelcomeCase() + '\n\n---',
       date: new Date(),
       title: 'Nema',
     },
@@ -200,7 +274,7 @@ export default function ChatWidget() {
         }}>
           <div style={{ fontSize: 22, marginRight: 6 }}>🌱</div>
           <div style={{
-            background: '#e0e7ef',
+            background: '#e0e0e0',
             color: '#444',
             borderRadius: 18,
             padding: '10px 18px',
@@ -218,7 +292,39 @@ export default function ChatWidget() {
         </div>
       );
     }
-    
+    // Mensaje de bienvenida: glow arriba, markdown abajo
+    if (i === 0 && msg.markdown) {
+      return (
+        <div key={i} style={{
+          animation: 'fadeInUp 0.3s ease-out',
+          display: 'flex',
+          justifyContent: isUser ? 'flex-end' : 'flex-start',
+          marginBottom: 16,
+        }}>
+          {isBot && <div style={{ fontSize: 22, marginRight: 6 }}>🌱</div>}
+          <div style={{
+            background: isUser ? '#444' : '#e0e7ef',
+            color: isUser ? '#fff' : '#444',
+            borderRadius: 18,
+            padding: '10px 18px',
+            fontSize: 17,
+            maxWidth: isMobile ? '72vw' : '500px',
+            boxShadow: '0 1px 6px rgba(34,34,34,0.04)',
+            overflowWrap: 'break-word',
+            wordBreak: 'break-word',
+            fontFamily: 'Manifold',
+            fontWeight: isBot ? 400 : 500
+          }}>
+            <div style={{marginBottom: 12, textAlign: 'center'}}>
+              <span className="welcome-glow">Dime a qué te dedicas</span>
+            </div>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={{table: MarkdownTable}}>
+              {msg.text.replace('Dime a qué te dedicas, y te enseñaré cómo puedes ahorrar tiempo cada semana automatizando tareas.', '')}
+            </ReactMarkdown>
+          </div>
+        </div>
+      );
+    }
     return (
       <div key={i} style={{
         animation: 'fadeInUp 0.3s ease-out',
@@ -240,7 +346,7 @@ export default function ChatWidget() {
           fontFamily: 'Manifold',
           fontWeight: isBot ? 400 : 500
         }}>
-          {msg.markdown ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown> : msg.text}
+          {msg.markdown ? <ReactMarkdown remarkPlugins={[remarkGfm]} components={{table: MarkdownTable}}>{msg.text}</ReactMarkdown> : msg.text}
         </div>
       </div>
     );
@@ -349,22 +455,23 @@ export default function ChatWidget() {
           <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
             <input
               ref={inputRef}
-              placeholder="Escribe tu mensaje..."
+              placeholder="¿A qué te dedicas?"
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={loading}
               maxLength={150}
               style={{
-                width: '100%', 
-                borderRadius: 24, 
-                border: '1.5px solid #e0e0e0',
+                fontFamily: 'Manifold',
                 fontSize: 18, 
                 padding: '12px 90px 12px 18px', 
                 background: '#fafbfc',
                 boxShadow: 'none', 
                 outline: 'none', 
-                transition: 'border 0.2s'
+                transition: 'border 0.2s',
+                width: '100%', 
+                borderRadius: 24, 
+                border: '1.5px solid #e0e0e0',
               }}
             />
             <button 
@@ -433,22 +540,23 @@ export default function ChatWidget() {
         <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
           <input
             ref={inputRef}
-            placeholder="Escribe tu mensaje..."
+            placeholder="¿A qué te dedicas?"
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={loading}
             maxLength={150}
             style={{
-              width: '100%', 
-              borderRadius: 24, 
-              border: '1.5px solid #e0e0e0',
+              fontFamily: 'Manifold',
               fontSize: 18, 
               padding: '12px 90px 12px 18px', 
               background: '#fafbfc',
               boxShadow: 'none', 
               outline: 'none', 
-              transition: 'border 0.2s'
+              transition: 'border 0.2s',
+              width: '100%', 
+              borderRadius: 24, 
+              border: '1.5px solid #e0e0e0',
             }}
           />
           <button 
