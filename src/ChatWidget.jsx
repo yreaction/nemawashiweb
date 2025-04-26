@@ -10,12 +10,32 @@ const getUserId = () => {
   return id;
 };
 
+// Casos de ejemplo para el mensaje de bienvenida
+const welcomeCases = [
+  `🦷 **Clínica Dental**  \n| Automatización           | Beneficio                        |\n|:-------------------------|:---------------------------------|\n| Recordatorios de citas    | Menos cancelaciones de última hora |\n| Mensajes post-consulta    | Mejor seguimiento del paciente    |\n| Registro automático       | Ahorro de tiempo administrativo   |`,
+  `🧘‍♀️ **Centro de Fisioterapia**  \n| Automatización              | Beneficio                      |\n|:----------------------------|:-------------------------------|\n| Confirmaciones de reservas  | Organización de la agenda     |\n| Recordatorio de ejercicios  | Mejor adherencia de tratamientos |\n| Facturación automática      | Menos errores contables        |`,
+  `🏡 **Agencia Inmobiliaria**  \n| Automatización                   | Beneficio                      |\n|:----------------------------------|:-------------------------------|\n| Captura de leads automática       | Más clientes potenciales        |\n| Seguimiento de visitas            | Cierre más rápido de ventas     |\n| Actualización de fichas de propiedades | Menos errores en anuncios |`,
+  `💼 **Consultora o Asesoría**  \n| Automatización             | Beneficio                      |\n|:----------------------------|:-------------------------------|\n| Agendamiento de reuniones   | Menos gestión manual           |\n| Facturación automática      | Control financiero mejorado    |\n| Seguimiento de proyectos    | Clientes mejor informados      |`,
+  `🛒 **Tienda Online (Ecommerce)**  \n| Automatización               | Beneficio                      |\n|:-----------------------------|:-------------------------------|\n| Emails de carrito abandonado | Recuperación de ventas         |\n| Actualizaciones de envío     | Mejor experiencia de cliente   |\n| Chatbot 24/7                 | Atención sin interrupciones    |`,
+  `🏥 **Clínica Estética o de Salud**  \n| Automatización             | Beneficio                        |\n|:----------------------------|:---------------------------------|\n| Recordatorios de citas      | Menos ausencias                 |\n| Encuestas post-servicio     | Mejor feedback del cliente      |\n| Seguimiento de tratamientos | Fidelización de pacientes       |`,
+  `🎓 **Academias y Formación**  \n| Automatización             | Beneficio                       |\n|:----------------------------|:--------------------------------|\n| Inscripción automática      | Ahorro de gestión administrativa |\n| Recordatorio de clases      | Mejor asistencia de alumnos     |\n| Envío de materiales         | Mejor preparación del alumno    |`,
+  `📸 **Fotógrafos y Creativos**  \n| Automatización             | Beneficio                         |\n|:----------------------------|:----------------------------------|\n| Gestión de reservas         | Mejor organización de sesiones   |\n| Confirmaciones automáticas  | Menos pérdidas de tiempo         |\n| Entrega de galerías online  | Experiencia cliente más fluida   |`,
+  `🍽️ **Restaurantes y Catering**  \n| Automatización             | Beneficio                        |\n|:----------------------------|:---------------------------------|\n| Reservas automáticas        | Menos llamadas manuales          |\n| Confirmaciones vía WhatsApp | Menos cancelaciones              |\n| Promociones personalizadas  | Más fidelización de clientes     |`,
+  `🧑‍⚖️ **Abogados y Despachos Jurídicos**  \n| Automatización             | Beneficio                        |\n|:----------------------------|:---------------------------------|\n| Seguimiento de casos        | Mejor control de procesos legales|\n| Recordatorio de audiencias  | Reducción de olvidos o errores    |\n| Envío de documentos         | Más eficiencia en la comunicación|`,
+];
+
+function getRandomWelcomeCase() {
+  return welcomeCases[Math.floor(Math.random() * welcomeCases.length)];
+}
+
 export default function ChatWidget() {
   const [messages, setMessages] = useState([
     {
       position: 'left',
       type: 'text',
-      text: '¡Hola! Soy Nema, tu agente IA. Cuéntame qué tarea repetitiva te quita tiempo y te ayudo a automatizarla.',
+      markdown: true,
+      text:
+        `👋 ¡Hola, soy **Nema**!\n\nDime a qué te dedicas, y te enseñaré cómo puedes ahorrar tiempo cada semana automatizando tareas.\n\nAquí tienes un ejemplo de lo que podemos hacer:\n\n---\n` + getRandomWelcomeCase() + '\n\n---',
       date: new Date(),
       title: 'Nema',
     },
@@ -176,7 +196,7 @@ export default function ChatWidget() {
           alignItems: 'center', 
           marginBottom: 12 
         }}>
-          <div style={{ fontSize: 22, marginRight: 6 }}>🤖</div>
+          <div style={{ fontSize: 22, marginRight: 6 }}>🌱</div>
           <div style={{
             background: '#e0e7ef',
             color: '#444',
@@ -187,7 +207,9 @@ export default function ChatWidget() {
             boxShadow: '0 1px 6px rgba(34,34,34,0.04)',
             fontStyle: 'italic',
             opacity: 0.8,
-            animation: 'fadeInUp 0.3s ease-out'
+            animation: 'fadeInUp 0.3s ease-out',
+            fontFamily: 'Manifold',
+            fontWeight: 300
           }}>
             Nema está pensando<span className="thinking-dots"></span>
           </div>
@@ -202,7 +224,7 @@ export default function ChatWidget() {
         justifyContent: isUser ? 'flex-end' : 'flex-start',
         marginBottom: 16,
       }}>
-        {isBot && <div style={{ fontSize: 22, marginRight: 6 }}>🤖</div>}
+        {isBot && <div style={{ fontSize: 22, marginRight: 6 }}>🌱</div>}
         <div style={{
           background: isUser ? '#444' : '#e0e7ef',
           color: isUser ? '#fff' : '#444',
@@ -212,7 +234,9 @@ export default function ChatWidget() {
           maxWidth: isMobile ? '72vw' : '500px',
           boxShadow: '0 1px 6px rgba(34,34,34,0.04)',
           overflowWrap: 'break-word',
-          wordBreak: 'break-word'
+          wordBreak: 'break-word',
+          fontFamily: 'Manifold',
+          fontWeight: isBot ? 400 : 500
         }}>{msg.text}</div>
       </div>
     );

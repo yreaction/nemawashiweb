@@ -124,8 +124,8 @@ body {
 }
 .nema-logo-text-large {
   font-family: var(--font-main);
-  font-weight: 900;
-  letter-spacing: -0.03em;
+  font-weight: 400;
+  letter-spacing: -0.05em;
   color: #444444;
   font-size: 80px;
   line-height: 1;
