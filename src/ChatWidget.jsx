@@ -16,26 +16,28 @@ const getUserId = () => {
 
 // Casos de ejemplo para el mensaje de bienvenida (markdown puro, sin HTML inline)
 const welcomeCases = [
-  `🦷 **Clínica Dental**\n\n### 📝 Automatización\nRegistro automático\n\n### ⏰ Beneficio\nAhorro de tiempo administrativo`,
+  `🦷 **Clínica Dental**\n\n👉 Un agente por WhatsApp podría recordar citas a los pacientes, confirmar cambios y enviar recordatorios automáticos de revisiones.`,
 
-  `🧘‍♀️ **Centro de Fisioterapia**\n\n### 📝 Automatización\nFacturación automática\n\n### ⏰ Beneficio\nMenos errores contables`,
+  `🧘‍♀️ **Centro de Fisioterapia**\n\n👉 Un asistente de IA podría gestionar toda la agenda, coordinar cambios de citas y avisar a los pacientes si hay huecos libres.`,
 
-  `🏡 **Agencia Inmobiliaria**\n\n### 📝 Automatización\nCaptura de leads automática\n\n### ⏰ Beneficio\nMás clientes potenciales`,
+  `🏡 **Agencia Inmobiliaria**\n\n👉 Un agente podría captar interesados automáticamente, enviarles información personalizada de propiedades y coordinar visitas sin intervención humana.`,
 
-  `💼 **Consultora o Asesoría**\n\n### 📝 Automatización\nAgendamiento de reuniones\n\n### ⏰ Beneficio\nMenos gestión manual`,
+  `💼 **Consultora o Asesoría**\n\n👉 Un agente podría pedir a los clientes la documentación fiscal que falta, verificarla y avisar automáticamente de plazos importantes.`,
 
-  `🛒 **Tienda Online (Ecommerce)**\n\n### 📝 Automatización\nActualizaciones de envío\n\n### ⏰ Beneficio\nMejor experiencia de cliente`,
+  `🛒 **Tienda Online (Ecommerce)**\n\n👉 Un bot de WhatsApp o email podría informar del estado de cada pedido, resolver dudas frecuentes y gestionar cambios de entrega.`,
 
-  `🏥 **Clínica Estética o de Salud**\n\n### 📝 Automatización\nEncuestas post-servicio\n\n### ⏰ Beneficio\nMejor feedback del cliente`,
+  `🏥 **Clínica Estética o de Salud**\n\n👉 Un asistente podría enviar encuestas de satisfacción tras cada sesión y ofrecer promociones personalizadas según el historial del cliente.`,
 
-  `🎓 **Academias y Formación**\n\n### 📝 Automatización\nInscripción automática\n\n### ⏰ Beneficio\nAhorro de gestión administrativa`,
+  `🎓 **Academias y Formación**\n\n👉 Un agente podría gestionar inscripciones automáticamente, enviar recordatorios de clases y materiales de estudio.`,
 
-  `📸 **Fotógrafos y Creativos**\n\n### 📝 Automatización\nEntrega de galerías online\n\n### ⏰ Beneficio\nExperiencia cliente más fluida`,
+  `📸 **Fotógrafos y Creativos**\n\n👉 Un asistente podría entregar galerías online personalizadas, gestionar pedidos de impresión y recordar vencimientos de sesiones.`,
 
-  `🍽️ **Restaurantes y Catering**\n\n### 📝 Automatización\nPromociones personalizadas\n\n### ⏰ Beneficio\nMás fidelización de clientes`,
+  `🍽️ **Restaurantes y Catering**\n\n👉 Un agente podría enviar promociones personalizadas a clientes habituales y gestionar reservas automáticamente.`,
 
-  `🧑‍⚖️ **Abogados y Despachos Jurídicos**\n\n### 📝 Automatización\nEnvío de documentos\n\n### ⏰ Beneficio\nMás eficiencia en la comunicación`,
+  `🧑‍⚖️ **Abogados y Despachos Jurídicos**\n\n👉 Un asistente podría enviar actualizaciones de casos a los clientes y pedir documentación de forma segura, sin saturar el correo.`,
+
 ];
+
 
 // Helper para bienvenida: devuelve el string tal cual
 function getSingleRowWelcomeCase(markdown) {
@@ -445,10 +447,17 @@ export default function ChatWidget() {
           style={{ 
             padding: '10px 8px 12px 8px', 
             background: 'var(--card-bg, #faf9f6)', 
-            borderTop: '1px solid #eee' 
+            borderTop: '1px solid #eee',
+            position: 'fixed',
+            left: 0,
+            bottom: 0,
+            width: '100vw',
+            zIndex: 10022,
+            maxWidth: '100vw',
+            boxSizing: 'border-box',
           }}
         >
-          <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
+          <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center', width: '100%' }}>
             <input
               ref={inputRef}
               type="text"
@@ -464,7 +473,7 @@ export default function ChatWidget() {
               style={{
                 fontFamily: 'Manifold',
                 fontSize: 18,
-                padding: '12px 90px 12px 18px',
+                padding: isMobile ? '12px 65px 12px 14px' : '12px 90px 12px 18px',
                 background: '#fafbfc',
                 boxShadow: 'none',
                 outline: 'none',
@@ -477,17 +486,19 @@ export default function ChatWidget() {
             {/* Character counter */}
             <span style={{
                 position: 'absolute',
-                right: 88,
+                right: isMobile ? 62 : 88,
                 top: '50%',
                 transform: 'translateY(-50%)',
-                fontSize: 13,
+                fontSize: isMobile ? 12 : 13,
                 color: input.length >= 150 ? '#d32f2f' : '#888',
                 fontFamily: 'Manifold',
                 background: 'rgba(255,255,255,0.8)',
                 borderRadius: 10,
-                padding: '2px 8px',
+                padding: isMobile ? '1.5px 6px' : '2px 8px',
                 pointerEvents: 'none',
-                zIndex: 1
+                zIndex: 1,
+                minWidth: 38,
+                textAlign: 'center',
               }}>
               {input.length}/150
             </span>
@@ -498,15 +509,17 @@ export default function ChatWidget() {
                 right: 6, 
                 top: '50%', 
                 transform: 'translateY(-50%)',
-                height: 38, 
-                minWidth: 70, 
+                height: isMobile ? 32 : 38, 
+                minWidth: isMobile ? 54 : 70, 
                 fontWeight: 700, 
-                fontSize: 17,
+                fontSize: isMobile ? 15 : 17,
                 borderRadius: 20, 
                 background: '#232323', 
                 color: '#fff', 
                 border: 'none',
-                cursor: loading ? 'wait' : 'pointer'
+                cursor: loading ? 'wait' : 'pointer',
+                padding: isMobile ? '0 10px' : undefined,
+                boxSizing: 'border-box',
               }} 
               disabled={loading}
             >
