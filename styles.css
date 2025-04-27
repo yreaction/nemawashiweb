@@ -100,9 +100,8 @@ header {
   color: var(--text-main);
 }
 .use-cases {
-  padding: 54px 16px 32px 16px;
-  background: var(--bg-light);
-  text-align: center;
+  padding: 64px 16px 32px 16px;
+  background: #f1f5f9;
 }
 .use-cases h2 {
   font-size: 1.5rem;
@@ -331,54 +330,7 @@ footer {
     max-width: 340px;
   }
 }
-@media (max-width: 600px) {
-  header { padding: 18px 0 10px 0; }
-  .hero { padding: 32px 6px 28px 6px; }
-  .use-cases { padding: 36px 6px 18px 6px; }
-  .philosophy { padding: 28px 6px 16px 6px; }
-  .sima-placeholder { padding: 16px 8px; }
-  /* Mantener el input del chat siempre abajo en móvil */
-  #sima-chat-widget > div {
-    min-height: 320px;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: flex-end !important;
-  }
-  #sima-chat-widget input[type="text"] {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100vw !important;
-    max-width: 100vw;
-    z-index: 9999;
-    border-radius: 0;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    box-shadow: 0 -2px 12px 0 rgba(0,0,0,0.10);
-  }
-  #sima-chat-widget form {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100vw !important;
-    max-width: 100vw;
-    z-index: 9999;
-    background: var(--card-bg, #faf9f6);
-    border-top: 1px solid #eee;
-    box-shadow: 0 -2px 12px 0 rgba(0,0,0,0.10);
-  }
-}
 
-/* Eliminación de estilos del carrusel por solicitud del usuario */
-/* Puedes borrar este bloque si no se usará más el carrusel */
-/*
-.carousel-casos,
-.carousel-track {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
 .carousel-casos::-webkit-scrollbar,
 .carousel-track::-webkit-scrollbar {
   display: none;
@@ -491,7 +443,7 @@ footer {
     padding: 10px 0 8px 8px;
   }
 }
-*/
+
 
 /* --- ChatWidget Custom --- */
 

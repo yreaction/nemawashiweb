@@ -17,27 +17,16 @@ const getUserId = () => {
 // Casos de ejemplo para el mensaje de bienvenida (markdown puro, sin HTML inline)
 const welcomeCases = [
   `🦷 **Clínica Dental**\n\n👉 Un agente por WhatsApp podría recordar citas a los pacientes, confirmar cambios y enviar recordatorios automáticos de revisiones.`,
-
   `🧘‍♀️ **Centro de Fisioterapia**\n\n👉 Un asistente de IA podría gestionar toda la agenda, coordinar cambios de citas y avisar a los pacientes si hay huecos libres.`,
-
   `🏡 **Agencia Inmobiliaria**\n\n👉 Un agente podría captar interesados automáticamente, enviarles información personalizada de propiedades y coordinar visitas sin intervención humana.`,
-
   `💼 **Consultora o Asesoría**\n\n👉 Un agente podría pedir a los clientes la documentación fiscal que falta, verificarla y avisar automáticamente de plazos importantes.`,
-
   `🛒 **Tienda Online (Ecommerce)**\n\n👉 Un bot de WhatsApp o email podría informar del estado de cada pedido, resolver dudas frecuentes y gestionar cambios de entrega.`,
-
   `🏥 **Clínica Estética o de Salud**\n\n👉 Un asistente podría enviar encuestas de satisfacción tras cada sesión y ofrecer promociones personalizadas según el historial del cliente.`,
-
   `🎓 **Academias y Formación**\n\n👉 Un agente podría gestionar inscripciones automáticamente, enviar recordatorios de clases y materiales de estudio.`,
-
   `📸 **Fotógrafos y Creativos**\n\n👉 Un asistente podría entregar galerías online personalizadas, gestionar pedidos de impresión y recordar vencimientos de sesiones.`,
-
   `🍽️ **Restaurantes y Catering**\n\n👉 Un agente podría enviar promociones personalizadas a clientes habituales y gestionar reservas automáticamente.`,
-
   `🧑‍⚖️ **Abogados y Despachos Jurídicos**\n\n👉 Un asistente podría enviar actualizaciones de casos a los clientes y pedir documentación de forma segura, sin saturar el correo.`,
-
 ];
-
 
 // Helper para bienvenida: devuelve el string tal cual
 function getSingleRowWelcomeCase(markdown) {
@@ -59,12 +48,10 @@ function flattenCellContent(content) {
 }
 
 function MarkdownTable({node, ...props}) {
-  // Header cells (th)
   const headerRow = props.children[0];
   const headerCells = headerRow && headerRow.props && headerRow.props.children
     ? React.Children.toArray(headerRow.props.children).filter(Boolean)
     : [];
-  // Body rows (tr)
   const bodyRows = props.children.slice(1).filter(Boolean);
 
   return (
@@ -84,7 +71,6 @@ function MarkdownTable({node, ...props}) {
             <tr key={i}>
               {cells.map((cell, j) => {
                 let cellContent = flattenCellContent(cell.props.children);
-                // Si es la columna vacía, deja el td vacío
                 if (j === 1) {
                   return <td key={j} style={{minWidth: 18, padding: '7px 18px'}}></td>;
                 }
@@ -120,7 +106,7 @@ export default function ChatWidget() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const chatContainerRef = useRef(null);
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef(null); // Keep this ref for signaling *where* to scroll to
   const inputRef = useRef(null);
   const userId = getUserId();
   const [isMobile, setIsMobile] = useState(false);
@@ -128,97 +114,123 @@ export default function ChatWidget() {
   const [windowHeight, setWindowHeight] = useState(0);
 
   useEffect(() => {
-    // Detectar si es mobile
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 600);
-      setWindowHeight(window.innerHeight);
+      const mobileCheck = window.innerWidth <= 600;
+      // Update mobile state only if it changes
+      if (mobileCheck !== isMobile) {
+         setIsMobile(mobileCheck);
+      }
+      setWindowHeight(window.innerHeight); // Update height on resize
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
-  const messagesToShow = loading ? [...messages, { position: 'left', thinking: true }] : messages;
-
-  // Efecto para scroll automático
-  useEffect(() => {
-    if (messages.length > 1) {
-      scrollToBottom();
+    // Add resize listener for height specifically for mobile keyboard handling
+    if ('visualViewport' in window) {
+        window.visualViewport.addEventListener('resize', checkMobile);
     }
-  }, [messages, loading]);
 
-  // Efecto para manejar el scroll cuando se abre en mobile
-  useEffect(() => {
-    if (isMobile && mobileOpen) {
-      setTimeout(() => {
-        scrollToBottom();
-        inputRef.current?.focus({ preventScroll: true });
-      }, 250);
-    }
-  }, [isMobile, mobileOpen]);
 
-  // Control del overflow del body
-  useEffect(() => {
-    if (isMobile && mobileOpen) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-      document.documentElement.style.position = 'fixed';
-      document.documentElement.style.width = '100%';
-      document.documentElement.style.height = '100%';
-    } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.position = '';
-      document.documentElement.style.width = '';
-      document.documentElement.style.height = '';
-    }
-    
     return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.position = '';
-      document.documentElement.style.width = '';
-      document.documentElement.style.height = '';
+      window.removeEventListener('resize', checkMobile);
+      if ('visualViewport' in window) {
+          window.visualViewport.removeEventListener('resize', checkMobile);
+      }
+    };
+  }, [isMobile]); // Re-run checkMobile if isMobile changes
+
+  // --- *** MODIFIED SCROLL FUNCTION *** ---
+  const scrollToBottom = (behavior = 'smooth') => {
+    // Use a slight delay to ensure the DOM has updated, especially after receiving messages
+    setTimeout(() => {
+      if (chatContainerRef.current) {
+        // Scroll the container so the bottom is in view
+        chatContainerRef.current.scrollTo({
+          top: chatContainerRef.current.scrollHeight,
+          behavior: behavior
+        });
+      }
+    }, 50); // 50ms delay often helps
+  };
+
+  // Effect for scroll automatico when messages change or loading ends
+  useEffect(() => {
+    // Scroll immediately (no smooth) if adding user message, smooth otherwise
+    const lastMessage = messages[messages.length - 1];
+    const behavior = lastMessage?.position === 'right' ? 'auto' : 'smooth';
+    scrollToBottom(behavior);
+  }, [messages, loading]); // Trigger on message/loading changes
+
+  // Effect for managing scroll/focus when mobile chat opens/closes
+  useEffect(() => {
+    if (isMobile) {
+      if (mobileOpen) {
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        // Using 100dvh attempts to use the dynamic viewport height
+        document.documentElement.style.height = '100dvh';
+        document.documentElement.style.position = 'fixed'; // Prevent body scroll leak
+        document.documentElement.style.width = '100%';
+
+        // Scroll and focus after opening animation/layout settles
+        setTimeout(() => {
+          scrollToBottom('auto'); // Instant scroll on open
+          inputRef.current?.focus({ preventScroll: true });
+        }, 250); // Delay might need adjustment
+      } else {
+        // Restore body scrolling when closing
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+        document.documentElement.style.height = '';
+        document.documentElement.style.position = '';
+        document.documentElement.style.width = '';
+      }
+    }
+
+    // Cleanup function to ensure styles are reset if component unmounts while open
+    return () => {
+       if (isMobile) { // Only reset if it was mobile
+         document.body.style.overflow = '';
+         document.documentElement.style.overflow = '';
+         document.documentElement.style.height = '';
+         document.documentElement.style.position = '';
+         document.documentElement.style.width = '';
+       }
     };
   }, [isMobile, mobileOpen]);
 
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'end'
-      });
-    }
-  };
 
   const sendMessage = async (text) => {
-    if (!text.trim()) return;
-    
-    setMessages((msgs) => [
-      ...msgs,
-      {
-        position: 'right',
-        type: 'text',
-        text,
-        date: new Date(),
-        title: 'Tú',
-      },
-    ]);
-    
+    const trimmedText = text.trim();
+    if (!trimmedText) return;
+
+    const newUserMessage = {
+      position: 'right',
+      type: 'text',
+      text: trimmedText,
+      date: new Date(),
+      title: 'Tú',
+    };
+
+    setMessages((msgs) => [...msgs, newUserMessage]);
     setLoading(true);
     setInput('');
-    
-    setTimeout(scrollToBottom, 50);
-    
+
+    // Scroll immediately after adding user message
+    // scrollToBottom('auto'); // Removed - handled by useEffect now
+
     try {
       const res = await fetch('/api/chat-proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, userId }),
+        body: JSON.stringify({ message: trimmedText, userId }),
       });
-      
+
+      if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
       const data = await res.json();
       const reply =
         data.raw ||
@@ -231,27 +243,35 @@ export default function ChatWidget() {
         {
           position: 'left',
           type: 'text',
-          text: reply,
+          text: reply, // Use raw response directly
+          markdown: true, // Assume response can be markdown
           date: new Date(),
           title: 'Nema',
         },
       ]);
-      
-      setTimeout(scrollToBottom, 50);
-    } catch {
+       // Scroll smoothly after bot reply - Handled by useEffect
+    } catch (error) {
+       console.error("Error sending message:", error);
       setMessages((msgs) => [
         ...msgs,
         {
           position: 'left',
           type: 'text',
-          text: 'Hubo un error al contactar al agente. Intenta más tarde.',
+          text: 'Hubo un error al contactar al agente. Por favor, intenta más tarde.',
           date: new Date(),
           title: 'Nema',
         },
       ]);
+       // Scroll smoothly after error message - Handled by useEffect
+    } finally {
+        setLoading(false);
+         // Ensure input is focused after sending, especially on mobile
+        if (isMobile && mobileOpen) {
+            setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100);
+        } else if (!isMobile) {
+            inputRef.current?.focus();
+        }
     }
-    
-    setLoading(false);
   };
 
   const handleKeyDown = (e) => {
@@ -264,14 +284,16 @@ export default function ChatWidget() {
   const renderMessage = (msg, i) => {
     const isBot = msg.position === 'left';
     const isUser = msg.position === 'right';
-    
+
     if (msg.thinking) {
       return (
-        <div key={`thinking-${i}`} style={{ 
-          display: 'flex', 
-          justifyContent: 'flex-start', 
-          alignItems: 'center', 
-          marginBottom: 12 
+        <div key={`thinking-${i}`} style={{
+          display: 'flex',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          marginBottom: 12,
+          paddingLeft: isBot ? 0 : 'auto', // Align thinking bubble left
+          paddingRight: isBot ? 'auto' : 0,
         }}>
           <div style={{ fontSize: 22, marginRight: 6 }}>🌱</div>
           <div style={{
@@ -279,13 +301,13 @@ export default function ChatWidget() {
             color: '#444',
             borderRadius: 18,
             padding: '10px 18px',
-            fontSize: 17,
-            maxWidth: isMobile ? '72vw' : '500px',
+            fontSize: '1rem', // Consistent font size
+            maxWidth: isMobile ? 'calc(75vw - 30px)' : '500px', // Adjust max width slightly
             boxShadow: '0 1px 6px rgba(34,34,34,0.04)',
             fontStyle: 'italic',
             opacity: 0.8,
             animation: 'fadeInUp 0.3s ease-out',
-            fontFamily: 'Manifold',
+            fontFamily: 'Manifold, var(--font-main)',
             fontWeight: 300
           }}>
             Nema está pensando<span className="thinking-dots"></span>
@@ -293,85 +315,75 @@ export default function ChatWidget() {
         </div>
       );
     }
-    // Mensaje de bienvenida: glow arriba, markdown abajo
-    if (i === 0 && msg.markdown) {
-      return (
-        <div key={i} style={{
-          animation: 'fadeInUp 0.3s ease-out',
-          display: 'flex',
-          justifyContent: isUser ? 'flex-end' : 'flex-start',
-          marginBottom: 16,
-        }}>
-          {isBot && <div style={{ fontSize: 22, marginRight: 6 }}>🌱</div>}
-          <div style={{
-            background: isUser ? '#444' : '#e0e7ef',
-            color: isUser ? '#fff' : '#444',
-            borderRadius: 18,
-            padding: '10px 18px',
-            fontSize: 17,
-            maxWidth: isMobile ? '72vw' : '500px',
-            boxShadow: '0 1px 6px rgba(34,34,34,0.04)',
-            overflowWrap: 'break-word',
-            wordBreak: 'break-word',
-            fontFamily: 'Manifold',
-            fontWeight: isBot ? 400 : 500
-          }}>
-            <div style={{marginBottom: 12, textAlign: 'center'}}>
-              <span className="welcome-glow">Dime a qué te dedicas</span>
-            </div>
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={{table: MarkdownTable}}>
-              {msg.text.replace('Dime a qué te dedicas, y te enseñaré cómo puedes ahorrar tiempo cada semana automatizando tareas.', '')}
-            </ReactMarkdown>
-          </div>
-        </div>
-      );
-    }
+
+    // Simplified message rendering logic
+    const messageStyle = {
+      background: isUser ? 'var(--primary, #444)' : '#e0e7ef',
+      color: isUser ? '#fff' : 'var(--text-main, #444)',
+      borderRadius: 18,
+      padding: '10px 18px',
+      fontSize: '1rem', // Consistent font size
+      maxWidth: isMobile ? 'calc(75vw - 30px)' : '500px', // Consistent max width
+      boxShadow: '0 1px 6px rgba(34,34,34,0.04)',
+      overflowWrap: 'break-word',
+      wordBreak: 'break-word',
+      fontFamily: 'Manifold, var(--font-main)',
+      fontWeight: isBot ? 400 : 500,
+      minWidth: '40px', // Ensure even small messages have some width
+      display: 'inline-block', // Prevent full width stretching
+      textAlign: 'left', // Ensure text aligns left within the bubble
+    };
+
     return (
       <div key={i} style={{
         animation: 'fadeInUp 0.3s ease-out',
         display: 'flex',
         justifyContent: isUser ? 'flex-end' : 'flex-start',
         marginBottom: 16,
+        paddingLeft: isBot ? 0 : '10%', // Add padding to push user messages right
+        paddingRight: isUser ? 0 : '10%', // Add padding to push bot messages left
       }}>
-        {isBot && <div style={{ fontSize: 22, marginRight: 6 }}>🌱</div>}
-        <div style={{
-          background: isUser ? '#444' : '#e0e7ef',
-          color: isUser ? '#fff' : '#444',
-          borderRadius: 18,
-          padding: '10px 18px',
-          fontSize: 17,
-          maxWidth: isMobile ? '72vw' : '500px',
-          boxShadow: '0 1px 6px rgba(34,34,34,0.04)',
-          overflowWrap: 'break-word',
-          wordBreak: 'break-word',
-          fontFamily: 'Manifold',
-          fontWeight: isBot ? 400 : 500
-        }}>
-          {msg.markdown ? <ReactMarkdown remarkPlugins={[remarkGfm]} components={{table: MarkdownTable}}>{msg.text}</ReactMarkdown> : msg.text}
+        {isBot && <div style={{ fontSize: 22, marginRight: 6, alignSelf: 'flex-end' }}>🌱</div>}
+        <div style={messageStyle}>
+          {msg.markdown ? (
+             <ReactMarkdown
+                 remarkPlugins={[remarkGfm]}
+                 components={{
+                     table: MarkdownTable,
+                     // Add other components if needed, e.g., links
+                     a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" style={{color: isUser ? '#fff' : 'var(--primary, #444)', textDecoration: 'underline'}}/>
+                 }}
+             >
+                 {msg.text}
+             </ReactMarkdown>
+           ) : (
+            msg.text // Render plain text if not markdown
+           )}
         </div>
       </div>
     );
   };
 
-  // Botón flotante para móvil
+
+  // Botón flotante para móvil (No changes needed here)
   if (isMobile && !mobileOpen) {
     return (
-      <button 
+      <button
         style={{
-          position: 'fixed', 
-          bottom: 20, 
-          right: 20, 
+          position: 'fixed',
+          bottom: 20,
+          right: 20,
           zIndex: 10002,
-          background: '#232323', 
-          color: '#fff', 
+          background: '#232323',
+          color: '#fff',
           borderRadius: 32,
-          padding: '14px 22px', 
-          fontWeight: 700, 
+          padding: '14px 22px',
+          fontWeight: 700,
           fontSize: 17,
-          border: 'none', 
-          boxShadow: '0 2px 14px rgba(34,34,34,0.14)', 
+          border: 'none',
+          boxShadow: '0 2px 14px rgba(34,34,34,0.14)',
           cursor: 'pointer'
-        }} 
+        }}
         onClick={() => setMobileOpen(true)}
       >
         💬 Chatea con Nema
@@ -379,91 +391,102 @@ export default function ChatWidget() {
     );
   }
 
-  // Vista móvil a pantalla completa
+  // --- *** MODIFIED MOBILE FULLSCREEN VIEW *** ---
   if (isMobile && mobileOpen) {
     return (
-      <div 
-        className="mobile-chat-layout" 
+      <div
+        className="mobile-chat-layout"
         style={{
-          position: 'fixed', 
-          top: 0, 
-          left: 0, 
-          width: '100vw', 
-          height: `${windowHeight}px`,
-          background: 'var(--card-bg, #faf9f6)', 
+          position: 'fixed', // Use fixed for the whole container
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: `${windowHeight}px`, // Use dynamic height
+          background: 'var(--bg-light, #fffaf3)', // Use main bg
           zIndex: 10010,
-          display: 'flex', 
-          flexDirection: 'column'
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden', // Prevent outer scroll
         }}
       >
-        <div 
-          style={{ 
-            background: '#232323', 
-            color: '#fff', 
-            padding: '13px 0 11px', 
-            textAlign: 'center', 
-            fontWeight: 800, 
-            fontSize: 19, 
-            position: 'relative',
-            zIndex: 10021
+        {/* Header */}
+        <div
+          style={{
+            background: '#232323',
+            color: '#fff',
+            padding: '13px 0 11px',
+            textAlign: 'center',
+            fontWeight: 800,
+            fontSize: 19,
+            position: 'relative', // For close button positioning
+            zIndex: 2, // Above content
+            flexShrink: 0, // Prevent header from shrinking
           }}
         >
           Nema
-          <button 
-            onClick={() => setMobileOpen(false)} 
-            style={{ 
-              position: 'absolute', 
-              right: 12, 
-              top: 8, 
-              background: 'none', 
-              border: 'none', 
-              color: '#fff', 
-              fontSize: 26, 
-              fontWeight: 700, 
-              cursor: 'pointer' 
+          <button
+            onClick={() => setMobileOpen(false)}
+            style={{
+              position: 'absolute',
+              right: 12,
+              top: '50%',
+              transform: 'translateY(-50%)', // Better vertical alignment
+              background: 'none',
+              border: 'none',
+              color: '#fff',
+              fontSize: 26,
+              fontWeight: 700,
+              cursor: 'pointer',
+              padding: '0 5px' // Easier to tap
             }}
+            aria-label="Cerrar chat" // Accessibility
           >
-            &times;
+            ×
           </button>
         </div>
-        
-        <div 
-          ref={chatContainerRef} 
+
+        {/* Messages Area */}
+        <div
+          ref={chatContainerRef}
           style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: '18px 8px 20px',
+            flex: 1, // Take remaining space
+            overflowY: 'auto', // Enable scrolling *only* here
+            padding: '18px 8px 10px 8px', // Consistent padding, less bottom padding needed
             scrollBehavior: 'smooth',
-            WebkitOverflowScrolling: 'touch',
-            msOverflowStyle: '-ms-autohiding-scrollbar'
+            WebkitOverflowScrolling: 'touch', // Smooth scrolling on iOS
+             background: 'var(--bg-light, #fffaf3)', // Ensure background consistency
           }}
         >
-          {messagesToShow.map(renderMessage)}
-          <div ref={messagesEndRef} />
+          {/* Render messages, including potential thinking indicator */}
+          {messages.map(renderMessage)}
+          {loading && renderMessage({ thinking: true }, 'thinking')}
+          {/* This empty div is a target for scrolling */}
+          <div ref={messagesEndRef} style={{ height: '1px' }} />
         </div>
-        
-        <form 
-          onSubmit={e => { e.preventDefault(); sendMessage(input); }} 
-          style={{ 
-            padding: '10px 8px 12px 8px', 
-            background: 'var(--card-bg, #faf9f6)', 
+
+        {/* Input Form Area */}
+        <form
+          onSubmit={e => { e.preventDefault(); sendMessage(input); }}
+          style={{
+            padding: '10px 8px 10px 8px', // Adjust padding slightly
+            background: 'var(--card-bg, #faf9f6)',
             borderTop: '1px solid #eee',
-            position: 'fixed',
-            left: 0,
-            bottom: 0,
-            width: '100vw',
-            zIndex: 10022,
-            maxWidth: '100vw',
-            boxSizing: 'border-box',
+            display: 'flex', // Use flexbox for alignment
+            alignItems: 'center', // Align items vertically
+            gap: '8px', // Space between input and button
+            flexShrink: 0, // Prevent form from shrinking
+            position: 'sticky', // Stick to bottom *within the flex container*
+            bottom: 0, // Make it stick to the bottom edge
+            zIndex: 2, // Above content
           }}
         >
-          <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center', width: '100%' }}>
+          {/* Input Wrapper (for counter positioning if needed) */}
+          <div style={{ position: 'relative', flex: 1 }}>
             <input
               ref={inputRef}
               type="text"
               value={input}
               onChange={e => {
-                // Limitar manualmente a 150 caracteres para evitar pegar texto largo
                 if (e.target.value.length <= 150) setInput(e.target.value);
               }}
               onKeyDown={handleKeyDown}
@@ -471,109 +494,122 @@ export default function ChatWidget() {
               maxLength={150}
               placeholder="¿A qué te dedicas?"
               style={{
-                fontFamily: 'Manifold',
-                fontSize: 18,
-                padding: isMobile ? '12px 65px 12px 14px' : '12px 90px 12px 18px',
-                background: '#fafbfc',
+                fontFamily: 'Manifold, var(--font-main)',
+                fontSize: 17, // Slightly smaller for mobile
+                padding: '10px 45px 10px 14px', // Adjusted padding: R needs space for counter
+                background: '#fff', // Clearer background
                 boxShadow: 'none',
                 outline: 'none',
-                transition: 'border 0.2s',
-                width: '100%',
-                borderRadius: 24,
+                width: '100%', // Fill available space
+                borderRadius: 20, // Slightly smaller radius
                 border: '1.5px solid #e0e0e0',
+                boxSizing: 'border-box', // Include padding/border in width
+                appearance: 'none', // Reset default styles
               }}
             />
             {/* Character counter */}
             <span style={{
-                position: 'absolute',
-                right: isMobile ? 62 : 88,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                fontSize: isMobile ? 12 : 13,
-                color: input.length >= 150 ? '#d32f2f' : '#888',
-                fontFamily: 'Manifold',
-                background: 'rgba(255,255,255,0.8)',
-                borderRadius: 10,
-                padding: isMobile ? '1.5px 6px' : '2px 8px',
-                pointerEvents: 'none',
-                zIndex: 1,
-                minWidth: 38,
-                textAlign: 'center',
-              }}>
+              position: 'absolute',
+              right: 10, // Position inside the padding area
+              top: '50%',
+              transform: 'translateY(-50%)',
+              fontSize: 11, // Smaller counter
+              color: input.length >= 150 ? '#d32f2f' : '#aaa', // Lighter gray
+              fontFamily: 'Manifold, var(--font-main)',
+              background: 'rgba(255,255,255,0.6)', // Slight background
+              borderRadius: 8,
+              padding: '1px 4px',
+              pointerEvents: 'none',
+              zIndex: 1,
+              minWidth: '30px', // Min width for counter
+              textAlign: 'center',
+            }}>
               {input.length}/150
             </span>
-            <button 
-              type="submit" 
-              style={{
-                position: 'absolute', 
-                right: 6, 
-                top: '50%', 
-                transform: 'translateY(-50%)',
-                height: isMobile ? 32 : 38, 
-                minWidth: isMobile ? 54 : 70, 
-                fontWeight: 700, 
-                fontSize: isMobile ? 15 : 17,
-                borderRadius: 20, 
-                background: '#232323', 
-                color: '#fff', 
-                border: 'none',
-                cursor: loading ? 'wait' : 'pointer',
-                padding: isMobile ? '0 10px' : undefined,
-                boxSizing: 'border-box',
-              }} 
-              disabled={loading}
-            >
-              Enviar
-            </button>
           </div>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            style={{
+              height: 40, // Match input height roughly
+              minWidth: 50, // Fixed width for the button
+              fontWeight: 700,
+              fontSize: 16, // Adjusted size
+              borderRadius: 20, // Match input radius
+              background: '#232323',
+              color: '#fff',
+              border: 'none',
+              cursor: loading ? 'wait' : 'pointer',
+              padding: '0 12px', // Horizontal padding
+              flexShrink: 0, // Prevent button shrinking
+              display: 'flex', // To center icon/text if needed
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            disabled={loading}
+            aria-label="Enviar mensaje" // Accessibility
+          >
+             {/* Simple send icon or text */}
+             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+             {/* Alternatively: Enviar */}
+          </button>
         </form>
       </div>
     );
   }
 
-  // Vista desktop (sin cambios)
+
+  // --- *** MODIFIED DESKTOP VIEW *** ---
   return (
-    <div style={{ 
-      background: 'var(--card-bg, #faf9f6)', 
-      borderRadius: 18, 
-      boxShadow: '0 2px 24px 0 rgba(34,34,34,0.07)', 
-      width: '100%', 
-      minHeight: 320, 
-      display: 'flex', 
-      flexDirection: 'column', 
-      justifyContent: 'flex-end', 
-      overflow: 'hidden' 
+    <div style={{
+      background: 'var(--bg-light, #fffaf3)', // Use main light bg
+      borderRadius: 18,
+      boxShadow: '0 2px 24px 0 rgba(34,34,34,0.07)',
+      width: '100%',
+      minHeight: 320, // Keep min height
+      maxHeight: '70vh', // Add max height to prevent excessive growth
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden' // Important: container handles overflow
     }}>
-      <div 
-        ref={chatContainerRef} 
-        style={{ 
-          flex: 1, 
-          overflowY: 'auto', 
-          padding: '24px 16px 12px 16px', 
-          background: 'var(--card-bg, #faf9f6)', 
-          scrollBehavior: 'smooth' 
+      {/* Messages Area */}
+      <div
+        ref={chatContainerRef}
+        style={{
+          flex: 1, // Takes up available space
+          overflowY: 'auto', // Allows scrolling *within this div*
+          padding: '24px 16px 12px 16px',
+          background: 'var(--bg-light, #fffaf3)', // Match container background
+          scrollBehavior: 'smooth'
         }}
       >
-        {messagesToShow.map(renderMessage)}
-        <div ref={messagesEndRef} />
+        {messages.map(renderMessage)}
+         {loading && renderMessage({ thinking: true }, 'thinking')}
+        {/* Scroll target */}
+        <div ref={messagesEndRef} style={{ height: '1px' }}/>
       </div>
-      <form 
-        onSubmit={e => { e.preventDefault(); sendMessage(input); }} 
-        style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          padding: '10px 16px 14px 16px', 
-          background: 'var(--card-bg, #faf9f6)', 
-          borderTop: '1px solid #eee' 
+
+      {/* Input Form Area */}
+      <form
+        onSubmit={e => { e.preventDefault(); sendMessage(input); }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '10px 16px 14px 16px',
+          background: 'var(--card-bg, #faf9f6)', // Use card bg for input area
+          borderTop: '1px solid #eee',
+          flexShrink: 0, // Prevent shrinking
+          position: 'relative', // Needed for counter positioning context
+          zIndex: 1, // Ensure above scrolled content slightly if needed
         }}
       >
-        <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
+        {/* Input field takes most space */}
+        <div style={{ position: 'relative', flex: 1 }}>
           <input
             ref={inputRef}
             type="text"
             value={input}
             onChange={e => {
-              // Limitar manualmente a 150 caracteres para evitar pegar texto largo
               if (e.target.value.length <= 150) setInput(e.target.value);
             }}
             onKeyDown={handleKeyDown}
@@ -581,53 +617,63 @@ export default function ChatWidget() {
             maxLength={150}
             placeholder="¿A qué te dedicas?"
             style={{
-              fontFamily: 'Manifold',
-              fontSize: 18, 
-              padding: '12px 90px 12px 18px', 
-              background: '#fafbfc',
-              boxShadow: 'none', 
-              outline: 'none', 
-              transition: 'border 0.2s',
-              width: '100%', 
-              borderRadius: 24, 
+              fontFamily: 'Manifold, var(--font-main)',
+              fontSize: 18,
+              // *** INCREASED RIGHT PADDING ***
+              padding: '12px 120px 12px 18px', // More space for counter + button
+              background: '#fff', // Use white background for input field
+              boxShadow: 'none',
+              outline: 'none',
+              width: '100%', // Takes full width of its container
+              borderRadius: 24,
               border: '1.5px solid #e0e0e0',
+              boxSizing: 'border-box', // Include padding in width calc
             }}
           />
-          {/* Character counter */}
+          {/* Character counter - Positioned relative to the input wrapper */}
           <span style={{
-              position: 'absolute',
-              right: 88,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              fontSize: 13,
-              color: input.length >= 150 ? '#d32f2f' : '#888',
-              fontFamily: 'Manifold',
-              background: 'rgba(255,255,255,0.8)',
-              borderRadius: 10,
-              padding: '2px 8px',
-              pointerEvents: 'none',
-              zIndex: 1
-            }}>
+            position: 'absolute',
+            // *** ADJUSTED RIGHT POSITION ***
+            right: 85, // Positioned before the button area
+            top: '50%',
+            transform: 'translateY(-50%)',
+            fontSize: 13,
+            color: input.length >= 150 ? '#d32f2f' : '#aaa', // Lighter gray
+            fontFamily: 'Manifold, var(--font-main)',
+            background: 'rgba(255,255,255,0.6)', // Slight background
+            borderRadius: 10,
+            padding: '2px 6px', // Slightly less padding
+            pointerEvents: 'none', // Doesn't block typing
+            zIndex: 1, // Above input text
+            minWidth: '35px',
+            textAlign: 'center',
+          }}>
             {input.length}/150
           </span>
-          <button 
-            type="submit" 
+          {/* Send Button - Positioned absolutely relative to the form */}
+           <button
+            type="submit"
             style={{
-              position: 'absolute', 
-              right: 6, 
-              top: '50%', 
+              position: 'absolute',
+              right: 6, // Keep close to edge
+              top: '50%',
               transform: 'translateY(-50%)',
-              height: 38, 
-              minWidth: 70, 
-              fontWeight: 700, 
+              height: 38,
+              minWidth: 70,
+              fontWeight: 700,
               fontSize: 17,
-              borderRadius: 20, 
-              background: '#232323', 
-              color: '#fff', 
+              borderRadius: 20, // Match input style
+              background: '#232323',
+              color: '#fff',
               border: 'none',
-              cursor: loading ? 'wait' : 'pointer'
-            }} 
+              cursor: loading ? 'wait' : 'pointer',
+              padding: '0 15px', // Padding for text/icon inside button
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
             disabled={loading}
+            aria-label="Enviar mensaje"
           >
             Enviar
           </button>
