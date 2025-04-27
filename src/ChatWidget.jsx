@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import '../styles/chat-markdown-table.css'; // Ensure this path is correct
+import '../styles/chat-markdown-table.css'; // Ensure this path is correct relative to ChatWidget.jsx
 import '../styles/welcome-glow.css'; // Ensure this path is correct
 
-// Helper function to get or create a unique user ID
+// Helper function to get or create a unique user ID stored in localStorage
 const getUserId = () => {
   let id = localStorage.getItem('nemawashi_user_id');
   if (!id) {
@@ -29,52 +29,64 @@ const welcomeCases = [
   `🧑‍⚖️ **Abogados y Despachos Jurídicos**\n\n👉 Un asistente podría enviar actualizaciones de casos a los clientes y pedir documentación de forma segura, sin saturar el correo.`,
 ];
 
+// Helper to get a single welcome case markdown string
 function getSingleRowWelcomeCase(markdown) {
   return markdown;
 }
 
+// Helper to get a random welcome case
 function getRandomWelcomeCase() {
   const raw = welcomeCases[Math.floor(Math.random() * welcomeCases.length)];
   return getSingleRowWelcomeCase(raw);
 }
 
-// --- Helper for Markdown Tables ---
+// --- Helper for Rendering Markdown Tables ---
+// Flattens React node content to a string (useful for table headers)
 function flattenCellContent(content) {
   if (content == null) return '';
-  if (typeof content === 'string' || typeof content === 'number') return content;
+  if (typeof content === 'string' || typeof content === 'number') return String(content);
   if (Array.isArray(content)) return content.map(flattenCellContent).join('');
-  if (typeof content === 'object' && content.props && content.props.children)
+  if (typeof content === 'object' && content.props && content.props.children) {
     return flattenCellContent(content.props.children);
+  }
   return '';
 }
 
+// Custom React component to render markdown tables with specific styling
 function MarkdownTable({node, ...props}) {
-  const headerRow = props.children[0];
-  const headerCells = headerRow && headerRow.props && headerRow.props.children
+  // Extract header cells
+  const headerRow = props.children?.[0];
+  const headerCells = headerRow?.props?.children
     ? React.Children.toArray(headerRow.props.children).filter(Boolean)
     : [];
-  const bodyRows = props.children.slice(1).filter(Boolean);
+
+  // Extract body rows
+  const bodyRows = props.children?.slice(1).filter(Boolean) || [];
 
   return (
     <table className="chat-markdown-table">
       <thead>
         <tr>
           {headerCells.map((th, i) => (
-            <th key={i} style={{minWidth: i === 1 ? 18 : 120, padding: '7px 18px', textAlign: i === 1 ? 'center' : 'left'}}>{flattenCellContent(th.props.children)}</th>
+            <th key={i} style={{minWidth: i === 1 ? 18 : 120, padding: '7px 18px', textAlign: i === 1 ? 'center' : 'left'}}>
+              {flattenCellContent(th.props.children)}
+            </th>
           ))}
         </tr>
       </thead>
       <tbody>
         {bodyRows.map((row, i) => {
-          if (!row || !row.props || !row.props.children) return null;
+          if (!row?.props?.children) return null;
           const cells = React.Children.toArray(row.props.children).filter(Boolean);
           return (
             <tr key={i}>
               {cells.map((cell, j) => {
                 let cellContent = flattenCellContent(cell.props.children);
-                if (j === 1) { // Assuming the second column (index 1) might be intentionally empty visually
+                // Assuming the second column (index 1) might be visually empty or different
+                if (j === 1) {
                   return <td key={j} style={{minWidth: 18, padding: '7px 18px'}}></td>;
                 }
+                // Apply special classes/styling based on column index
                 return (
                   <td key={j} className={j === 0 ? 'tick' : j === 2 ? 'benefit' : ''} style={{padding: '7px 18px'}}>
                     {j === 0 ? <span className="tick">✔</span> : null} {/* Checkmark in first column */}
@@ -93,45 +105,51 @@ function MarkdownTable({node, ...props}) {
 
 // --- Main Chat Widget Component ---
 export default function ChatWidget() {
+  // State for messages in the chat
   const [messages, setMessages] = useState([
     {
-      position: 'left',
+      position: 'left', // Bot message
       type: 'text',
-      markdown: true, // Signal that this message uses Markdown
+      markdown: true, // Contains markdown
       text:
         `👋 ¡Hola, soy **Nema**!\n\n` +
         `Dime a qué te dedicas, y te enseñaré cómo puedes ahorrar tiempo cada semana automatizando tareas, **sin que necesites conocimientos técnicos**.\n\n` +
-        getRandomWelcomeCase() + '\n\n---',
+        getRandomWelcomeCase() + '\n\n---', // Initial welcome message
       date: new Date(),
-      title: 'Nema',
+      title: 'Nema', // Sender name
     },
   ]);
+  // State for the input field value
   const [input, setInput] = useState('');
+  // State to indicate if waiting for a response
   const [loading, setLoading] = useState(false);
+  // Refs for DOM elements
   const chatContainerRef = useRef(null); // Ref for the scrollable message area
-  const messagesEndRef = useRef(null); // Ref for the target element to scroll to
+  const messagesEndRef = useRef(null); // Ref for the empty div at the bottom to scroll to
   const inputRef = useRef(null); // Ref for the text input field
-  const userId = getUserId(); // Get unique user ID
+  // Get unique user ID
+  const userId = getUserId();
+  // State for mobile detection
   const [isMobile, setIsMobile] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false); // State for mobile fullscreen view
+  // State for mobile fullscreen chat view
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   // --- Effect for Mobile Detection ---
   useEffect(() => {
     const checkMobile = () => {
-      const mobileCheck = window.innerWidth <= 600;
-      if (mobileCheck !== isMobile) {
-         setIsMobile(mobileCheck);
+      // Update state only if the mobile status actually changes
+      const mobileCheckResult = window.innerWidth <= 600;
+      if (mobileCheckResult !== isMobile) {
+          setIsMobile(mobileCheckResult);
       }
-      // We might use visualViewport later for fine-tuning, but not essential now
     };
+    checkMobile(); // Initial check
+    window.addEventListener('resize', checkMobile); // Check on resize
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
-    // Optional: Listener for visual viewport changes (can help with complex keyboard scenarios)
+    // Optional: Listener for visual viewport changes for potentially better keyboard handling
     let visualViewportListener = null;
     if ('visualViewport' in window) {
-        visualViewportListener = () => checkMobile();
+        visualViewportListener = checkMobile; // Reuse the same check logic
         window.visualViewport.addEventListener('resize', visualViewportListener);
     }
 
@@ -142,23 +160,24 @@ export default function ChatWidget() {
           window.visualViewport.removeEventListener('resize', visualViewportListener);
       }
     };
-  }, [isMobile]); // Re-run checkMobile if isMobile state changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile]); // Rerun effect if isMobile changes (to ensure listener is attached correctly)
 
 
   // --- Scroll Function ---
   const scrollToBottom = (behavior = 'smooth') => {
-    // Use a slight delay to allow DOM updates before scrolling
+    // Use a short timeout to ensure the DOM has updated before scrolling
     setTimeout(() => {
       if (chatContainerRef.current) {
         chatContainerRef.current.scrollTo({
-          top: chatContainerRef.current.scrollHeight,
-          behavior: behavior
+          top: chatContainerRef.current.scrollHeight, // Scroll to the very bottom
+          behavior: behavior // Use specified behavior ('smooth' or 'auto')
         });
       }
-    }, 50); // 50ms delay is often sufficient
+    }, 50); // 50ms delay
   };
 
-  // --- Effect for Scrolling on New Messages/Loading ---
+  // --- Effect for Scrolling on New Messages or Loading State Change ---
   useEffect(() => {
     // Determine scroll behavior: instant for user message, smooth otherwise
     const lastMessage = messages[messages.length - 1];
@@ -169,42 +188,34 @@ export default function ChatWidget() {
 
   // --- Effect for Handling Body Styles and Focus when Mobile Chat Opens/Closes ---
   useEffect(() => {
+    // Only apply these side effects when on mobile and the chat is open
     if (isMobile && mobileOpen) {
-      // Store original body/html styles to restore later
+      // Store the original body overflow style to restore it later
       const originalBodyOverflow = document.body.style.overflow;
-      const originalBodyPosition = document.body.style.position;
-      const originalBodyHeight = document.body.style.height;
-      const originalHtmlOverflow = document.documentElement.style.overflow;
-      const originalHtmlHeight = document.documentElement.style.height;
 
-      // Apply styles to prevent background scrolling when chat is open
+      // Prevent the main page body from scrolling while the chat overlay is open
       document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed'; // Helps lock the body content
-      document.body.style.height = '100%';
-      document.documentElement.style.overflow = 'hidden'; // Also lock the html element
-      document.documentElement.style.height = '100%';
 
-      // Scroll to bottom and focus input after a short delay (allows layout to settle)
+      // Scroll chat to bottom and focus the input field after a brief delay
+      // This allows the opening animation/layout to settle first
       const focusTimeout = setTimeout(() => {
-        scrollToBottom('auto'); // Instant scroll
+        scrollToBottom('auto'); // Instant scroll on open
         if (inputRef.current) {
-             inputRef.current.focus({ preventScroll: true }); // Focus without triggering scroll
+             inputRef.current.focus({ preventScroll: true }); // Focus without jarring scroll
         }
-      }, 250); // Adjust delay if needed
+      }, 250); // Delay in milliseconds
 
-      // Cleanup function: Restore original styles when chat closes or component unmounts
+      // Cleanup function: This runs when the effect dependencies change or the component unmounts
       return () => {
-        clearTimeout(focusTimeout); // Clear timeout if component unmounts quickly
-        document.body.style.overflow = originalBodyOverflow;
-        document.body.style.position = originalBodyPosition;
-        document.body.style.height = originalBodyHeight;
-        document.documentElement.style.overflow = originalHtmlOverflow;
-        document.documentElement.style.height = originalHtmlHeight;
+        clearTimeout(focusTimeout); // Clear the timeout if cleanup runs before it fires
+        document.body.style.overflow = originalBodyOverflow; // Restore original body overflow
       };
-
+    } else {
+      // Explicitly ensure body overflow is reset if the chat is closed or not on mobile
+      // Handles cases where the state might change back quickly
+      document.body.style.overflow = ''; // Revert to default or previously set style
     }
-    // No else needed: cleanup function handles restoration
-  }, [isMobile, mobileOpen]); // Dependency array ensures this runs when mobile state or open state changes
+  }, [isMobile, mobileOpen]); // Dependencies: This effect runs when isMobile or mobileOpen changes
 
 
   // --- Function to Send Message to Backend ---
@@ -212,76 +223,79 @@ export default function ChatWidget() {
     const trimmedText = text.trim();
     if (!trimmedText) return; // Don't send empty messages
 
-    // Add user message immediately to the UI
+    // 1. Add User Message to UI Immediately
     const newUserMessage = {
       position: 'right',
       type: 'text',
       text: trimmedText,
       date: new Date(),
-      title: 'Tú', // You
+      title: 'Tú', // "You" in Spanish
     };
     setMessages((msgs) => [...msgs, newUserMessage]);
-    setLoading(true); // Show thinking indicator
-    setInput(''); // Clear input field
 
-    // Scroll handled by useEffect watching 'messages'
+    // 2. Set Loading State & Clear Input
+    setLoading(true);
+    setInput('');
+    // Scrolling is handled by the useEffect watching 'messages'
 
+    // 3. Send to Backend API
     try {
-      // Replace '/api/chat-proxy' with your actual backend endpoint
+      // Replace '/api/chat-proxy' with your actual API endpoint
       const res = await fetch('/api/chat-proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: trimmedText, userId }), // Send message and user ID
+        body: JSON.stringify({ message: trimmedText, userId }), // Send message content and user ID
       });
 
+      // Handle potential HTTP errors
       if (!res.ok) {
-          // Handle HTTP errors (e.g., 4xx, 5xx)
           throw new Error(`HTTP error! status: ${res.status}`);
       }
 
       const data = await res.json();
 
-      // Extract the reply text (adjust based on your actual API response structure)
+      // Extract the reply text (adjust logic based on your API response structure)
       const reply =
-        data.raw || // Prefer raw field if available
-        (Array.isArray(data) && data[0]?.response) || // Handle array responses
-        data.response || // Standard response field
-        (typeof data === 'string' ? data : 'Gracias, tu mensaje ha sido recibido.'); // Fallback
+        data.raw ||
+        (Array.isArray(data) && data[0]?.response) ||
+        data.response ||
+        (typeof data === 'string' ? data : 'Gracias, tu mensaje ha sido recibido.'); // Fallback message
 
-      // Add bot reply to the UI
+      // 4. Add Bot Response to UI
       setMessages((msgs) => [
         ...msgs,
         {
           position: 'left',
           type: 'text',
           text: reply,
-          markdown: true, // Assume bot responses can be Markdown
+          markdown: true, // Assume bot responses might contain Markdown
           date: new Date(),
           title: 'Nema', // Bot name
         },
       ]);
-       // Scroll handled by useEffect watching 'messages'
+      // Scrolling is handled by the useEffect watching 'messages'
 
     } catch (error) {
-       console.error("Error sending message:", error); // Log error for debugging
-       // Add error message to the UI
+       console.error("Error sending message:", error); // Log the error for debugging
+       // 4b. Add Error Message to UI
       setMessages((msgs) => [
         ...msgs,
         {
           position: 'left',
           type: 'text',
-          text: 'Hubo un error al contactar al agente. Por favor, intenta más tarde.',
+          text: 'Hubo un error al contactar al agente. Por favor, intenta más tarde.', // User-friendly error
           markdown: false, // Error message is plain text
           date: new Date(),
           title: 'Nema',
         },
       ]);
-       // Scroll handled by useEffect watching 'messages'
+       // Scrolling is handled by the useEffect watching 'messages'
     } finally {
-        setLoading(false); // Hide thinking indicator
-         // Refocus the input field after sending/receiving
+        // 5. Reset Loading State & Refocus Input
+        setLoading(false);
+        // Refocus logic depends on platform
         if (isMobile && mobileOpen) {
-             // Small delay might be needed on mobile after keyboard interaction
+             // Small delay might be necessary on mobile after keyboard dismisses/interactions
             setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100);
         } else if (!isMobile) {
             inputRef.current?.focus(); // Focus immediately on desktop
@@ -289,99 +303,71 @@ export default function ChatWidget() {
     }
   };
 
-  // --- Handle Enter Key Press in Input ---
+  // --- Handle Enter Key Press in Input Field ---
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { // Send on Enter, allow Shift+Enter for new lines
-      e.preventDefault(); // Prevent default Enter behavior (like form submission)
+    // Send message if Enter is pressed without the Shift key
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // Prevent default Enter behavior (e.g., adding newline)
       sendMessage(input);
     }
   };
 
-  // --- Function to Render Individual Messages ---
+  // --- Function to Render Individual Chat Messages ---
   const renderMessage = (msg, i) => {
     const isBot = msg.position === 'left';
     const isUser = msg.position === 'right';
 
-    // Render the "thinking" indicator
+    // A. Render the "Thinking" indicator if msg.thinking is true
     if (msg.thinking) {
       return (
-        <div key={`thinking-${i}`} style={{
-          display: 'flex',
-          justifyContent: 'flex-start', // Always align left for bot thinking
-          alignItems: 'center',
-          marginBottom: 12,
-        }}>
-          {/* Bot Icon */}
-          <div style={{ fontSize: 22, marginRight: 6, alignSelf: 'flex-end' }}>🌱</div>
-          {/* Thinking Bubble */}
-          <div style={{
-            background: '#e0e0e0',
-            color: '#444',
-            borderRadius: 18,
-            padding: '10px 18px',
-            fontSize: '1rem', // Consistent font size
-            maxWidth: isMobile ? 'calc(75vw - 30px)' : '500px', // Max width calculation
-            boxShadow: '0 1px 6px rgba(34,34,34,0.04)',
-            fontStyle: 'italic',
-            opacity: 0.8,
-            animation: 'fadeInUp 0.3s ease-out', // Simple fade-in animation
-            fontFamily: 'Manifold, var(--font-main)', // Use defined font stack
-            fontWeight: 300
-          }}>
-            Nema está pensando<span className="thinking-dots"></span> {/* CSS handles the dots animation */}
+        <div key={`thinking-${i}`} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ fontSize: 22, marginRight: 6, alignSelf: 'flex-end' }}>🌱</div> {/* Bot icon */}
+          <div style={{ background: '#e0e0e0', color: '#444', borderRadius: 18, padding: '10px 18px', fontSize: '1rem', maxWidth: isMobile ? 'calc(75vw - 30px)' : '500px', boxShadow: '0 1px 6px rgba(34,34,34,0.04)', fontStyle: 'italic', opacity: 0.8, animation: 'fadeInUp 0.3s ease-out', fontFamily: 'Manifold, var(--font-main)', fontWeight: 300 }}>
+            Nema está pensando<span className="thinking-dots"></span> {/* CSS class handles dot animation */}
           </div>
         </div>
       );
     }
 
-    // --- Common styles for message bubbles ---
+    // B. Render a standard message bubble
+    // Define common styles for message bubbles
     const messageStyle = {
-      background: isUser ? 'var(--primary, #444)' : '#e0e7ef', // Different colors for user/bot
+      background: isUser ? 'var(--primary, #444)' : '#e0e7ef', // Use CSS variables for colors
       color: isUser ? '#fff' : 'var(--text-main, #444)',
       borderRadius: 18,
       padding: '10px 18px',
-      fontSize: '1rem', // Standard font size
-      maxWidth: isMobile ? 'calc(75vw - 30px)' : '500px', // Max width limits bubble size
-      boxShadow: '0 1px 6px rgba(34,34,34,0.04)', // Subtle shadow
-      overflowWrap: 'break-word', // Allow long words to wrap
-      wordBreak: 'break-word', // Ensure words break correctly
-      fontFamily: 'Manifold, var(--font-main)', // Use defined font stack
-      fontWeight: isBot ? 400 : 500, // Slightly bolder user text
-      minWidth: '40px', // Prevent tiny bubbles for short messages
-      display: 'inline-block', // Prevent bubble from taking full width
-      textAlign: 'left', // Align text inside the bubble to the left
+      fontSize: '1rem',
+      maxWidth: isMobile ? 'calc(75vw - 30px)' : '500px', // Limit bubble width
+      boxShadow: '0 1px 6px rgba(34,34,34,0.04)',
+      overflowWrap: 'break-word',
+      wordBreak: 'break-word',
+      fontFamily: 'Manifold, var(--font-main)',
+      fontWeight: isBot ? 400 : 500, // Slightly different weights
+      minWidth: '40px', // Avoid tiny bubbles
+      display: 'inline-block', // Prevent full width stretching
+      textAlign: 'left', // Align text inside bubble
     };
 
-    // --- Render the actual message row ---
+    // Structure for the message row
     return (
-      <div key={i} style={{
-        animation: 'fadeInUp 0.3s ease-out', // Fade-in animation for new messages
-        display: 'flex',
-        justifyContent: isUser ? 'flex-end' : 'flex-start', // Align user right, bot left
-        marginBottom: 16,
-        paddingLeft: isBot ? 0 : '10%', // Indent user messages from the left
-        paddingRight: isUser ? 0 : '10%', // Indent bot messages from the right
-      }}>
-        {/* Bot Icon (only show if message is from bot) */}
+      <div key={i} style={{ animation: 'fadeInUp 0.3s ease-out', display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start', marginBottom: 16, paddingLeft: isBot ? 0 : '10%', paddingRight: isUser ? 0 : '10%' }}>
+        {/* Show bot icon only for bot messages */}
         {isBot && <div style={{ fontSize: 22, marginRight: 6, alignSelf: 'flex-end' }}>🌱</div>}
-
-        {/* Message Bubble */}
+        {/* The message bubble itself */}
         <div style={messageStyle}>
-          {/* Conditional rendering: Use ReactMarkdown if markdown flag is true */}
+          {/* Render content: Use ReactMarkdown if markdown: true, otherwise plain text */}
           {msg.markdown ? (
              <ReactMarkdown
-                 remarkPlugins={[remarkGfm]} // Enable GitHub Flavored Markdown (tables, etc.)
+                 remarkPlugins={[remarkGfm]} // Enable GitHub Flavored Markdown features
                  components={{
-                     // Custom renderer for tables
-                     table: MarkdownTable,
-                     // Custom renderer for links (open in new tab)
-                     a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" style={{color: isUser ? '#fff' : 'var(--primary, #444)', textDecoration: 'underline'}}/>
+                     table: MarkdownTable, // Custom table renderer
+                     a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" style={{color: isUser ? '#fff' : 'var(--primary, #444)', textDecoration: 'underline'}}/> // Style links
                  }}
              >
                  {msg.text}
              </ReactMarkdown>
            ) : (
-            msg.text // Render as plain text otherwise
+            msg.text // Render plain text
            )}
         </div>
       </div>
@@ -396,25 +382,10 @@ export default function ChatWidget() {
     return (
       <button
         style={{
-          position: 'fixed',
-          bottom: 20,
-          right: 20,
-          zIndex: 10002, // High z-index to be on top
-          background: '#232323', // Dark background
-          color: '#fff', // White text/icon
-          borderRadius: 32, // Circular shape
-          padding: '14px 22px', // Padding for size
-          fontWeight: 700, // Bold text
-          fontSize: 17,
-          border: 'none', // No border
-          boxShadow: '0 2px 14px rgba(34,34,34,0.14)', // Shadow for depth
-          cursor: 'pointer', // Indicate interactivity
-          display: 'flex', // For aligning icon and text if needed
-          alignItems: 'center',
-          gap: '8px'
+          position: 'fixed', bottom: 20, right: 20, zIndex: 10002, background: '#232323', color: '#fff', borderRadius: 32, padding: '14px 22px', fontWeight: 700, fontSize: 17, border: 'none', boxShadow: '0 2px 14px rgba(34,34,34,0.14)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
         }}
-        onClick={() => setMobileOpen(true)} // Open the chat on click
-        aria-label="Abrir chat con Nema" // Accessibility label
+        onClick={() => setMobileOpen(true)} // Open the chat
+        aria-label="Abrir chat con Nema"
       >
         💬 Chatea con Nema
       </button>
@@ -425,164 +396,59 @@ export default function ChatWidget() {
   if (isMobile && mobileOpen) {
     return (
       <div
-        className="mobile-chat-layout" // Identifier class
+        className="mobile-chat-layout"
         style={{
-          position: 'absolute', // Position absolutely within the locked body
+          position: 'fixed', // Use fixed positioning for overlay
           top: 0,
           left: 0,
-          width: '100%',
-          height: '100%', // Fill the locked body dimensions
-          background: 'var(--bg-light, #fffaf3)', // Use main light background
-          zIndex: 10010, // Ensure it's above the FAB and other content
+          width: '100vw', // Full viewport width
+          height: '100dvh', // Full DYNAMIC viewport height (adapts to keyboard)
+          background: 'var(--bg-light, #fffaf3)', // Background color from CSS variable
+          zIndex: 10010, // High z-index to be on top of everything
           display: 'flex',
-          flexDirection: 'column', // Stack header, messages, input vertically
-          overflow: 'hidden', // Prevent the container itself from scrolling
+          flexDirection: 'column', // Stack elements vertically
+          overflow: 'hidden', // Prevent the main container itself from scrolling
         }}
       >
         {/* Header Bar */}
-        <div
-          style={{
-            background: '#232323', // Dark header background
-            color: '#fff',
-            padding: '13px 0 11px',
-            textAlign: 'center',
-            fontWeight: 800,
-            fontSize: 19,
-            position: 'relative', // Needed for absolute positioning of close button
-            zIndex: 2, // Keep header above scrolling content
-            flexShrink: 0, // Prevent header from shrinking
-          }}
-        >
-          Nema {/* Chat Title */}
+        <div style={{ background: '#232323', color: '#fff', padding: '13px 0 11px', textAlign: 'center', fontWeight: 800, fontSize: 19, position: 'relative', zIndex: 2, flexShrink: 0 }}>
+          Nema {/* Title */}
           {/* Close Button */}
-          <button
-            onClick={() => setMobileOpen(false)} // Close the chat on click
-            style={{
-              position: 'absolute',
-              right: 12,
-              top: '50%',
-              transform: 'translateY(-50%)', // Vertically center
-              background: 'none',
-              border: 'none',
-              color: '#fff',
-              fontSize: 26, // Large icon size
-              fontWeight: 700,
-              cursor: 'pointer',
-              padding: '0 5px', // Increase tap area slightly
-            }}
-            aria-label="Cerrar chat" // Accessibility
-          >
-            × {/* Times symbol for close */}
+          <button onClick={() => setMobileOpen(false)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#fff', fontSize: 26, fontWeight: 700, cursor: 'pointer', padding: '0 5px' }} aria-label="Cerrar chat">
+            × {/* Close icon */}
           </button>
         </div>
 
         {/* Messages Area (Scrollable) */}
-        <div
-          ref={chatContainerRef} // Ref for scrolling control
-          style={{
-            flex: 1, // Take up all available vertical space
-            overflowY: 'auto', // Enable vertical scrolling *only* for this area
-            padding: '18px 8px 10px 8px', // Padding around messages
-            scrollBehavior: 'smooth', // Use smooth scrolling for bot replies
-            WebkitOverflowScrolling: 'touch', // Enable momentum scrolling on iOS
-            background: 'var(--bg-light, #fffaf3)', // Match main background
-          }}
-        >
-          {/* Render all messages */}
-          {messages.map(renderMessage)}
-          {/* Render thinking indicator if loading */}
-          {loading && renderMessage({ thinking: true }, 'thinking')}
-          {/* Empty div used as the target for scrolling to the bottom */}
-          <div ref={messagesEndRef} style={{ height: '1px' }} />
+        <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '18px 8px 10px 8px', scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch', background: 'var(--bg-light, #fffaf3)' }}>
+          {messages.map(renderMessage)} {/* Render all messages */}
+          {loading && renderMessage({ thinking: true }, 'thinking')} {/* Show thinking indicator */}
+          <div ref={messagesEndRef} style={{ height: '1px' }} /> {/* Scroll target */}
         </div>
 
         {/* Input Form Area (Sticks to Bottom) */}
-        <form
-          onSubmit={e => { e.preventDefault(); sendMessage(input); }} // Handle form submission
-          style={{
-            padding: '10px 8px 10px 8px', // Padding around input/button
-            background: 'var(--card-bg, #faf9f6)', // Slightly different background for input area
-            borderTop: '1px solid #eee', // Separator line
-            display: 'flex', // Use flexbox for input and button alignment
-            alignItems: 'center', // Vertically align items
-            gap: '8px', // Space between input field and button
-            flexShrink: 0, // Prevent form area from shrinking
-            position: 'sticky', // Stick to the bottom of the flex container
-            bottom: 0, // Position at the bottom
-            zIndex: 2, // Keep input area above messages during scroll overlap
-          }}
-        >
-          {/* Input Field Wrapper (for character counter positioning) */}
-          <div style={{ position: 'relative', flex: 1 }}> {/* Takes up remaining space */}
+        <form onSubmit={e => { e.preventDefault(); sendMessage(input); }} style={{ padding: '10px 8px 10px 8px', background: 'var(--card-bg, #faf9f6)', borderTop: '1px solid #eee', display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, position: 'sticky', bottom: 0, zIndex: 2 }}>
+          {/* Input Field Wrapper */}
+          <div style={{ position: 'relative', flex: 1 }}>
             <input
-              ref={inputRef} // Ref for focusing
+              ref={inputRef}
               type="text"
               value={input}
-              onChange={e => {
-                // Limit input length client-side
-                if (e.target.value.length <= 150) setInput(e.target.value);
-              }}
-              onKeyDown={handleKeyDown} // Handle Enter key
-              disabled={loading} // Disable input while waiting for response
-              maxLength={150} // HTML5 max length attribute
-              placeholder="¿A qué te dedicas?" // Placeholder text
-              style={{
-                fontFamily: 'Manifold, var(--font-main)',
-                fontSize: 17, // Slightly smaller font for mobile input
-                padding: '10px 45px 10px 14px', // Padding: R allows space for counter
-                background: '#fff', // White background for input
-                boxShadow: 'none',
-                outline: 'none',
-                width: '100%', // Fill wrapper width
-                borderRadius: 20, // Rounded corners
-                border: '1.5px solid #e0e0e0', // Subtle border
-                boxSizing: 'border-box', // Include padding/border in width
-                appearance: 'none', // Remove default mobile styling
-              }}
+              onChange={e => { if (e.target.value.length <= 150) setInput(e.target.value); }}
+              onKeyDown={handleKeyDown}
+              disabled={loading}
+              maxLength={150}
+              placeholder="¿A qué te dedicas?"
+              style={{ fontFamily: 'Manifold, var(--font-main)', fontSize: 17, padding: '10px 45px 10px 14px', background: '#fff', boxShadow: 'none', outline: 'none', width: '100%', borderRadius: 20, border: '1.5px solid #e0e0e0', boxSizing: 'border-box', appearance: 'none' }}
             />
             {/* Character Counter */}
-            <span style={{
-              position: 'absolute',
-              right: 10, // Position inside the input's right padding
-              top: '50%',
-              transform: 'translateY(-50%)',
-              fontSize: 11, // Small font size for counter
-              color: input.length >= 150 ? '#d32f2f' : '#aaa', // Red when near limit, gray otherwise
-              fontFamily: 'Manifold, var(--font-main)',
-              background: 'rgba(255,255,255,0.6)', // Semi-transparent background
-              borderRadius: 8,
-              padding: '1px 4px',
-              pointerEvents: 'none', // Doesn't interfere with typing
-              zIndex: 1, // Above the input field itself
-              minWidth: '30px',
-              textAlign: 'center',
-            }}>
-              {input.length}/150 {/* Display current length / max length */}
+            <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: input.length >= 150 ? '#d32f2f' : '#aaa', fontFamily: 'Manifold, var(--font-main)', background: 'rgba(255,255,255,0.6)', borderRadius: 8, padding: '1px 4px', pointerEvents: 'none', zIndex: 1, minWidth: '30px', textAlign: 'center' }}>
+              {input.length}/150
             </span>
           </div>
           {/* Submit Button */}
-          <button
-            type="submit" // HTML5 submit button
-            style={{
-              height: 40, // Match input height visually
-              minWidth: 50, // Ensure button has minimum width
-              fontWeight: 700,
-              fontSize: 16,
-              borderRadius: 20, // Match input rounding
-              background: '#232323', // Dark background
-              color: '#fff', // White icon/text
-              border: 'none',
-              cursor: loading ? 'wait' : 'pointer', // Indicate loading state
-              padding: '0 12px', // Padding inside button
-              flexShrink: 0, // Prevent button from shrinking
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            disabled={loading} // Disable button when loading
-            aria-label="Enviar mensaje" // Accessibility
-          >
-             {/* Send Icon (SVG) */}
+          <button type="submit" style={{ height: 40, minWidth: 50, fontWeight: 700, fontSize: 16, borderRadius: 20, background: '#232323', color: '#fff', border: 'none', cursor: loading ? 'wait' : 'pointer', padding: '0 12px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} disabled={loading} aria-label="Enviar mensaje">
+             {/* Send Icon */}
              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
           </button>
         </form>
@@ -590,121 +456,37 @@ export default function ChatWidget() {
     );
   }
 
-  // 3. Render Desktop Chat Widget View (default case)
+  // 3. Render Desktop Chat Widget View (default case when not mobile or mobile chat closed)
   return (
-    <div style={{
-      background: 'var(--bg-light, #fffaf3)', // Main widget background
-      borderRadius: 18, // Consistent rounding
-      boxShadow: '0 2px 24px 0 rgba(34,34,34,0.07)', // Widget shadow
-      width: '100%', // Take full width of its container (e.g., sima-placeholder)
-      minHeight: 320, // Minimum height
-      maxHeight: '70vh', // Maximum height to prevent excessive growth on tall screens
-      display: 'flex',
-      flexDirection: 'column', // Stack messages and input vertically
-      overflow: 'hidden', // Container clips content, internal div scrolls
-    }}>
+    <div style={{ background: 'var(--bg-light, #fffaf3)', borderRadius: 18, boxShadow: '0 2px 24px 0 rgba(34,34,34,0.07)', width: '100%', minHeight: 320, maxHeight: '70vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Messages Area (Scrollable) */}
-      <div
-        ref={chatContainerRef} // Ref for scrolling
-        style={{
-          flex: 1, // Takes up available space
-          overflowY: 'auto', // Enable vertical scrolling *only* here
-          padding: '24px 16px 12px 16px', // Padding for messages
-          background: 'var(--bg-light, #fffaf3)', // Match container background
-          scrollBehavior: 'smooth', // Smooth scroll for bot messages
-        }}
-      >
+      <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '24px 16px 12px 16px', background: 'var(--bg-light, #fffaf3)', scrollBehavior: 'smooth' }}>
         {messages.map(renderMessage)}
         {loading && renderMessage({ thinking: true }, 'thinking')}
-        {/* Scroll target */}
         <div ref={messagesEndRef} style={{ height: '1px' }}/>
       </div>
-
       {/* Input Form Area */}
-      <form
-        onSubmit={e => { e.preventDefault(); sendMessage(input); }} // Handle submission
-        style={{
-          display: 'flex', // Use flex for alignment (although only one main child here)
-          alignItems: 'center', // Vertically center content if needed
-          padding: '10px 16px 14px 16px', // Padding around input area
-          background: 'var(--card-bg, #faf9f6)', // Slightly different background for input area
-          borderTop: '1px solid #eee', // Separator line
-          flexShrink: 0, // Prevent this area from shrinking
-          position: 'relative', // Needed for absolute positioning of button/counter
-          zIndex: 1, // Ensure it's visually above scrolled content if overlap occurs
-        }}
-      >
-        {/* Input field wrapper (takes most space) */}
+      <form onSubmit={e => { e.preventDefault(); sendMessage(input); }} style={{ display: 'flex', alignItems: 'center', padding: '10px 16px 14px 16px', background: 'var(--card-bg, #faf9f6)', borderTop: '1px solid #eee', flexShrink: 0, position: 'relative', zIndex: 1 }}>
+        {/* Input field wrapper */}
         <div style={{ position: 'relative', flex: 1 }}>
           <input
-            ref={inputRef} // Ref for focusing
+            ref={inputRef}
             type="text"
             value={input}
-            onChange={e => {
-              if (e.target.value.length <= 150) setInput(e.target.value);
-            }}
-            onKeyDown={handleKeyDown} // Handle Enter key
-            disabled={loading} // Disable while loading
-            maxLength={150} // Max length
-            placeholder="¿A qué te dedicas?" // Placeholder
-            style={{
-              fontFamily: 'Manifold, var(--font-main)',
-              fontSize: 18, // Larger font size for desktop
-              padding: '12px 120px 12px 18px', // Padding: R allows space for counter and button
-              background: '#fff', // White input background
-              boxShadow: 'none',
-              outline: 'none', // Remove default focus outline
-              width: '100%', // Fill the wrapper
-              borderRadius: 24, // Rounded corners
-              border: '1.5px solid #e0e0e0', // Subtle border
-              boxSizing: 'border-box', // Include padding/border in width calculation
-            }}
+            onChange={e => { if (e.target.value.length <= 150) setInput(e.target.value); }}
+            onKeyDown={handleKeyDown}
+            disabled={loading}
+            maxLength={150}
+            placeholder="¿A qué te dedicas?"
+            style={{ fontFamily: 'Manifold, var(--font-main)', fontSize: 18, padding: '12px 120px 12px 18px', background: '#fff', boxShadow: 'none', outline: 'none', width: '100%', borderRadius: 24, border: '1.5px solid #e0e0e0', boxSizing: 'border-box' }}
           />
-          {/* Character Counter */}
-          <span style={{
-            position: 'absolute',
-            right: 85, // Position left of the button area
-            top: '50%',
-            transform: 'translateY(-50%)',
-            fontSize: 13, // Slightly larger counter for desktop
-            color: input.length >= 150 ? '#d32f2f' : '#aaa', // Red near limit, gray otherwise
-            fontFamily: 'Manifold, var(--font-main)',
-            background: 'rgba(255,255,255,0.6)',
-            borderRadius: 10,
-            padding: '2px 6px',
-            pointerEvents: 'none',
-            zIndex: 1, // Above input text
-            minWidth: '35px',
-            textAlign: 'center',
-          }}>
+          {/* Character counter */}
+          <span style={{ position: 'absolute', right: 85, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: input.length >= 150 ? '#d32f2f' : '#aaa', fontFamily: 'Manifold, var(--font-main)', background: 'rgba(255,255,255,0.6)', borderRadius: 10, padding: '2px 6px', pointerEvents: 'none', zIndex: 1, minWidth: '35px', textAlign: 'center' }}>
             {input.length}/150
           </span>
           {/* Send Button */}
-           <button
-            type="submit" // Submit button
-            style={{
-              position: 'absolute', // Position absolutely within the form
-              right: 6, // Position near the right edge
-              top: '50%',
-              transform: 'translateY(-50%)', // Vertically center
-              height: 38, // Button height
-              minWidth: 70, // Minimum width for the text
-              fontWeight: 700,
-              fontSize: 17,
-              borderRadius: 20, // Rounded corners matching input less
-              background: '#232323', // Dark background
-              color: '#fff', // White text
-              border: 'none',
-              cursor: loading ? 'wait' : 'pointer', // Indicate loading state
-              padding: '0 15px', // Padding inside button
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            disabled={loading} // Disable when loading
-            aria-label="Enviar mensaje" // Accessibility
-          >
-            Enviar {/* Button Text */}
+           <button type="submit" style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', height: 38, minWidth: 70, fontWeight: 700, fontSize: 17, borderRadius: 20, background: '#232323', color: '#fff', border: 'none', cursor: loading ? 'wait' : 'pointer', padding: '0 15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} disabled={loading} aria-label="Enviar mensaje">
+            Enviar
           </button>
         </div>
       </form>
