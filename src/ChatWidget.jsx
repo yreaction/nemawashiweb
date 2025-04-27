@@ -114,7 +114,7 @@ export default function ChatWidget() {
       text:
         `👋 ¡Hola, soy Nema!\n\n` +
         `Dime a qué te dedicas, y te enseñaré cómo puedes ahorrar tiempo cada semana automatizando tareas, **sin que necesites conocimientos técnicos**.\n\n` +
-         '\n\n' + 'Por ejemplo:' + '\n\n' + getRandomWelcomeCase() + '\n\n---', // Initial welcome message
+         '\n\n' + 'Por ejemplo:' + '\n\n' + getRandomWelcomeCase() + '\n\n', // Initial welcome message
       date: new Date(),
       title: 'Nema', // Sender name
     },
@@ -346,7 +346,7 @@ export default function ChatWidget() {
     // B. Render Normal Messages (User or Bot)
     const messageStyle = {
       background: isUser ? '#f3f4f8' : '#f7f8fa',
-      color: 'var(--primary, #444444)', // Gris oscuro del theme
+      color: 'var(--primary, #444444)', // Gris oscuro para ambos
       borderRadius: 18,
       padding: '10px 18px',
       fontSize: '1.16rem', // Más grande
@@ -436,9 +436,8 @@ export default function ChatWidget() {
         </div>
 
         {/* Messages Area (Scrollable) */}
-        <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '18px 8px 10px 8px', scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch', background: 'var(--bg-light, #fffaf3)' }}>
+        <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '18px 8px 10px 8px', background: 'var(--bg-light, #fffaf3)', scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
           {messages.map(renderMessage)} {/* Render all messages */}
-          {loading && renderMessage({ thinking: true }, 'thinking')} {/* Show thinking indicator */}
           <div ref={messagesEndRef} style={{ height: '1px' }} /> {/* Scroll target */}
         </div>
 
@@ -455,7 +454,7 @@ export default function ChatWidget() {
               disabled={loading}
               maxLength={150}
               placeholder="¿A qué te dedicas?"
-              style={{ fontFamily: 'Manifold, var(--font-main)', fontSize: 17, padding: '10px 14px', background: '#fff', boxShadow: 'none', outline: 'none', width: '100%', borderRadius: 20, border: '1.5px solid #e0e0e0', boxSizing: 'border-box', appearance: 'none' }}
+              style={{ fontFamily: 'Manifold, var(--font-main)', fontSize: 17, padding: '10px 14px', background: '#fff', boxShadow: 'none', outline: 'none', width: '100%', borderRadius: 20, border: '1.5px solid #e0e0e0', boxSizing: 'border-box', resize: 'none', minHeight: 44, maxHeight: 120, overflowY: 'auto', paddingRight: 90 }}
             />
           </div>
           {/* Submit Button */}
@@ -474,7 +473,6 @@ export default function ChatWidget() {
       {/* Messages Area (Scrollable) */}
       <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '24px 16px 12px 16px', background: 'var(--bg-light, #fffaf3)', scrollBehavior: 'smooth' }}>
         {messages.map(renderMessage)}
-        {loading && renderMessage({ thinking: true }, 'thinking')}
         <div ref={messagesEndRef} style={{ height: '1px' }}/>
       </div>
       {/* Input Form Area */}
@@ -490,7 +488,7 @@ export default function ChatWidget() {
             disabled={loading}
             maxLength={150}
             placeholder="¿A qué te dedicas?"
-            style={{ fontFamily: 'Manifold, var(--font-main)', fontSize: 18, padding: '12px 18px', background: '#fff', boxShadow: 'none', outline: 'none', width: '100%', borderRadius: 24, border: '1.5px solid #e0e0e0', boxSizing: 'border-box' }}
+            style={{ fontFamily: 'Manifold, var(--font-main)', fontSize: 18, padding: '12px 18px 12px 18px', background: '#fff', boxShadow: 'none', outline: 'none', width: '100%', borderRadius: 24, border: '1.5px solid #e0e0e0', boxSizing: 'border-box', resize: 'none', minHeight: 44, maxHeight: 120, overflowY: 'auto', paddingRight: 90 }}
           />
           {/* Send Button */}
            <button type="submit" style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', height: 38, minWidth: 70, fontWeight: 700, fontSize: 17, borderRadius: 20, background: '#232323', color: '#fff', border: 'none', cursor: loading ? 'wait' : 'pointer', padding: '0 15px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} disabled={loading} aria-label="Enviar mensaje">
