@@ -231,7 +231,15 @@ export default function ChatWidget() {
       date: new Date(),
       title: 'Tú', // "You" in Spanish
     };
-    setMessages((msgs) => [...msgs, newUserMessage]);
+    // 1b. Añade mensaje "pensando" del bot
+    const thinkingMessage = {
+      position: 'left',
+      thinking: true,
+      type: 'thinking',
+      date: new Date(),
+      title: 'Nema',
+    };
+    setMessages((msgs) => [...msgs, newUserMessage, thinkingMessage]);
 
     // 2. Set Loading State & Clear Input
     setLoading(true);
@@ -261,34 +269,43 @@ export default function ChatWidget() {
         data.response ||
         (typeof data === 'string' ? data : 'Gracias, tu mensaje ha sido recibido.'); // Fallback message
 
-      // 4. Add Bot Response to UI
-      setMessages((msgs) => [
-        ...msgs,
-        {
-          position: 'left',
-          type: 'text',
-          text: reply,
-          markdown: true, // Assume bot responses might contain Markdown
-          date: new Date(),
-          title: 'Nema', // Bot name
-        },
-      ]);
+      // 4. Reemplaza el mensaje "pensando" por la respuesta real
+      setMessages((msgs) => {
+        // Elimina el último mensaje si es thinking
+        let arr = [...msgs];
+        if (arr.length && arr[arr.length - 1].thinking) arr.pop();
+        return [
+          ...arr,
+          {
+            position: 'left',
+            type: 'text',
+            text: reply,
+            markdown: true, // Assume bot responses might contain Markdown
+            date: new Date(),
+            title: 'Nema',
+          },
+        ];
+      });
       // Scrolling is handled by the useEffect watching 'messages'
 
     } catch (error) {
        console.error("Error sending message:", error); // Log the error for debugging
-       // 4b. Add Error Message to UI
-      setMessages((msgs) => [
-        ...msgs,
-        {
-          position: 'left',
-          type: 'text',
-          text: 'Hubo un error al contactar al agente. Por favor, intenta más tarde.', // User-friendly error
-          markdown: false, // Error message is plain text
-          date: new Date(),
-          title: 'Nema',
-        },
-      ]);
+       // 4b. En caso de error, elimina el mensaje "pensando" y muestra el error
+      setMessages((msgs) => {
+        let arr = [...msgs];
+        if (arr.length && arr[arr.length - 1].thinking) arr.pop();
+        return [
+          ...arr,
+          {
+            position: 'left',
+            type: 'text',
+            text: 'Hubo un error al contactar al agente. Por favor, intenta más tarde.',
+            markdown: false,
+            date: new Date(),
+            title: 'Nema',
+          },
+        ];
+      });
        // Scrolling is handled by the useEffect watching 'messages'
     } finally {
         // 5. Reset Loading State & Refocus Input
