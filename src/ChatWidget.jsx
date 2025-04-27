@@ -17,16 +17,16 @@ const getUserId = () => {
 
 // --- Welcome Message Examples ---
 const welcomeCases = [
-  `🦷 **Clínica Dental**\n\n👉 Un agente por WhatsApp podría recordar citas a los pacientes, confirmar cambios y enviar recordatorios automáticos de revisiones.`,
-  `🧘‍♀️ **Centro de Fisioterapia**\n\n👉 Un asistente de IA podría gestionar toda la agenda, coordinar cambios de citas y avisar a los pacientes si hay huecos libres.`,
-  `🏡 **Agencia Inmobiliaria**\n\n👉 Un agente podría captar interesados automáticamente, enviarles información personalizada de propiedades y coordinar visitas sin intervención humana.`,
-  `💼 **Consultora o Asesoría**\n\n👉 Un agente podría pedir a los clientes la documentación fiscal que falta, verificarla y avisar automáticamente de plazos importantes.`,
-  `🛒 **Tienda Online (Ecommerce)**\n\n👉 Un bot de WhatsApp o email podría informar del estado de cada pedido, resolver dudas frecuentes y gestionar cambios de entrega.`,
-  `🏥 **Clínica Estética o de Salud**\n\n👉 Un asistente podría enviar encuestas de satisfacción tras cada sesión y ofrecer promociones personalizadas según el historial del cliente.`,
-  `🎓 **Academias y Formación**\n\n👉 Un agente podría gestionar inscripciones automáticamente, enviar recordatorios de clases y materiales de estudio.`,
-  `📸 **Fotógrafos y Creativos**\n\n👉 Un asistente podría entregar galerías online personalizadas, gestionar pedidos de impresión y recordar vencimientos de sesiones.`,
-  `🍽️ **Restaurantes y Catering**\n\n👉 Un agente podría enviar promociones personalizadas a clientes habituales y gestionar reservas automáticamente.`,
-  `🧑‍⚖️ **Abogados y Despachos Jurídicos**\n\n👉 Un asistente podría enviar actualizaciones de casos a los clientes y pedir documentación de forma segura, sin saturar el correo.`,
+  `🦷 Clínica Dental\n\n👉 Un agente por WhatsApp podría recordar citas a los pacientes, confirmar cambios y enviar recordatorios automáticos de revisiones.`,
+  `🧘‍♀️ Centro de Fisioterapia\n\n👉 Un asistente de IA podría gestionar toda la agenda, coordinar cambios de citas y avisar a los pacientes si hay huecos libres.`,
+  `🏡 Agencia Inmobiliaria\n\n👉 Un agente podría captar interesados automáticamente, enviarles información personalizada de propiedades y coordinar visitas sin intervención humana.`,
+  `💼 Consultora o Asesoría\n\n👉 Un agente podría pedir a los clientes la documentación fiscal que falta, verificarla y avisar automáticamente de plazos importantes.`,
+  `🛒 Tienda Online (Ecommerce)\n\n👉 Un bot de WhatsApp o email podría informar del estado de cada pedido, resolver dudas frecuentes y gestionar cambios de entrega.`,
+  `🏥 Clínica Estética o de Salud\n\n👉 Un asistente podría enviar encuestas de satisfacción tras cada sesión y ofrecer promociones personalizadas según el historial del cliente.`,
+  `🎓 Academias y Formación\n\n👉 Un agente podría gestionar inscripciones automáticamente, enviar recordatorios de clases y materiales de estudio.`,
+  `📸 Fotógrafos y Creativos\n\n👉 Un asistente podría entregar galerías online personalizadas, gestionar pedidos de impresión y recordar vencimientos de sesiones.`,
+  `🍽️ Restaurantes y Catering\n\n👉 Un agente podría enviar promociones personalizadas a clientes habituales y gestionar reservas automáticamente.`,
+  `🧑‍⚖️ Abogados y Despachos Jurídicos\n\n👉 Un asistente podría enviar actualizaciones de casos a los clientes y pedir documentación de forma segura, sin saturar el correo.`,
 ];
 
 // Helper to get a single welcome case markdown string
@@ -112,9 +112,9 @@ export default function ChatWidget() {
       type: 'text',
       markdown: true, // Contains markdown
       text:
-        `👋 ¡Hola, soy **Nema**!\n\n` +
+        `👋 ¡Hola, soy Nema!\n\n` +
         `Dime a qué te dedicas, y te enseñaré cómo puedes ahorrar tiempo cada semana automatizando tareas, **sin que necesites conocimientos técnicos**.\n\n` +
-        getRandomWelcomeCase() + '\n\n---', // Initial welcome message
+         '\n\n' + 'Por ejemplo:' + '\n\n' + getRandomWelcomeCase() + '\n\n---', // Initial welcome message
       date: new Date(),
       title: 'Nema', // Sender name
     },
@@ -322,33 +322,28 @@ export default function ChatWidget() {
       return (
         <div key={`thinking-${i}`} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: 12 }}>
           <div style={{ fontSize: 22, marginRight: 6, alignSelf: 'flex-end' }}>🌱</div> {/* Bot icon */}
-          <div style={{ background: '#e0e0e0', color: '#444', borderRadius: 18, padding: '10px 18px', fontSize: '1rem', maxWidth: isMobile ? 'calc(75vw - 30px)' : '500px', boxShadow: '0 1px 6px rgba(34,34,34,0.04)', fontStyle: 'italic', opacity: 0.8, animation: 'fadeInUp 0.3s ease-out', fontFamily: 'Manifold, var(--font-main)', fontWeight: 300 }}>
-            Nema está pensando<span className="thinking-dots"></span> {/* CSS class handles dot animation */}
-          </div>
         </div>
       );
     }
 
-    // B. Render a standard message bubble
-    // Define common styles for message bubbles
+    // B. Render Normal Messages (User or Bot)
     const messageStyle = {
-      background: isUser ? 'var(--primary, #444)' : '#e0e7ef', // Use CSS variables for colors
-      color: isUser ? '#fff' : 'var(--text-main, #444)',
+      background: isUser ? '#f3f4f8' : '#f7f8fa',
+      color: 'var(--primary, #444444)', // Gris oscuro del theme
       borderRadius: 18,
       padding: '10px 18px',
-      fontSize: '1rem',
-      maxWidth: isMobile ? 'calc(75vw - 30px)' : '500px', // Limit bubble width
+      fontSize: '1.16rem', // Más grande
+      maxWidth: isMobile ? 'calc(75vw - 30px)' : '500px',
       boxShadow: '0 1px 6px rgba(34,34,34,0.04)',
       overflowWrap: 'break-word',
       wordBreak: 'break-word',
       fontFamily: 'Manifold, var(--font-main)',
-      fontWeight: isBot ? 400 : 500, // Slightly different weights
-      minWidth: '40px', // Avoid tiny bubbles
-      display: 'inline-block', // Prevent full width stretching
-      textAlign: 'left', // Align text inside bubble
+      fontWeight: 600,
+      minWidth: '40px',
+      display: 'inline-block',
+      textAlign: 'left',
     };
 
-    // Structure for the message row
     return (
       <div key={i} style={{ animation: 'fadeInUp 0.3s ease-out', display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start', marginBottom: 16, paddingLeft: isBot ? 0 : '10%', paddingRight: isUser ? 0 : '10%' }}>
         {/* Show bot icon only for bot messages */}
@@ -357,18 +352,22 @@ export default function ChatWidget() {
         <div style={messageStyle}>
           {/* Render content: Use ReactMarkdown if markdown: true, otherwise plain text */}
           {msg.markdown ? (
-             <ReactMarkdown
-                 remarkPlugins={[remarkGfm]} // Enable GitHub Flavored Markdown features
-                 components={{
-                     table: MarkdownTable, // Custom table renderer
-                     a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" style={{color: isUser ? '#fff' : 'var(--primary, #444)', textDecoration: 'underline'}}/> // Style links
-                 }}
-             >
-                 {msg.text}
-             </ReactMarkdown>
-           ) : (
-            msg.text // Render plain text
-           )}
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                table: MarkdownTable,
+                a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" style={{color: 'var(--primary, #444444)', textDecoration: 'underline', fontWeight: 600}}/>,
+                p: ({node, ...props}) => <p style={{margin: '0 0 10px 0', fontWeight: 600, fontFamily: 'Manifold, var(--font-main)'}}>{props.children}</p>,
+                strong: ({node, ...props}) => <strong style={{fontWeight: 800, color: '#1db954', fontFamily: 'Manifold, var(--font-main)'}}>{props.children}</strong>,
+                li: ({node, ...props}) => <li style={{fontWeight: 600, fontFamily: 'Manifold, var(--font-main)'}}>{props.children}</li>,
+                hr: () => <hr style={{margin: '8px 0'}} />
+              }}
+            >
+              {msg.text}
+            </ReactMarkdown>
+          ) : (
+            msg.text
+          )}
         </div>
       </div>
     );
@@ -439,12 +438,8 @@ export default function ChatWidget() {
               disabled={loading}
               maxLength={150}
               placeholder="¿A qué te dedicas?"
-              style={{ fontFamily: 'Manifold, var(--font-main)', fontSize: 17, padding: '10px 45px 10px 14px', background: '#fff', boxShadow: 'none', outline: 'none', width: '100%', borderRadius: 20, border: '1.5px solid #e0e0e0', boxSizing: 'border-box', appearance: 'none' }}
+              style={{ fontFamily: 'Manifold, var(--font-main)', fontSize: 17, padding: '10px 14px', background: '#fff', boxShadow: 'none', outline: 'none', width: '100%', borderRadius: 20, border: '1.5px solid #e0e0e0', boxSizing: 'border-box', appearance: 'none' }}
             />
-            {/* Character Counter */}
-            <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: input.length >= 150 ? '#d32f2f' : '#aaa', fontFamily: 'Manifold, var(--font-main)', background: 'rgba(255,255,255,0.6)', borderRadius: 8, padding: '1px 4px', pointerEvents: 'none', zIndex: 1, minWidth: '30px', textAlign: 'center' }}>
-              {input.length}/150
-            </span>
           </div>
           {/* Submit Button */}
           <button type="submit" style={{ height: 40, minWidth: 50, fontWeight: 700, fontSize: 16, borderRadius: 20, background: '#232323', color: '#fff', border: 'none', cursor: loading ? 'wait' : 'pointer', padding: '0 12px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} disabled={loading} aria-label="Enviar mensaje">
@@ -478,14 +473,10 @@ export default function ChatWidget() {
             disabled={loading}
             maxLength={150}
             placeholder="¿A qué te dedicas?"
-            style={{ fontFamily: 'Manifold, var(--font-main)', fontSize: 18, padding: '12px 120px 12px 18px', background: '#fff', boxShadow: 'none', outline: 'none', width: '100%', borderRadius: 24, border: '1.5px solid #e0e0e0', boxSizing: 'border-box' }}
+            style={{ fontFamily: 'Manifold, var(--font-main)', fontSize: 18, padding: '12px 18px', background: '#fff', boxShadow: 'none', outline: 'none', width: '100%', borderRadius: 24, border: '1.5px solid #e0e0e0', boxSizing: 'border-box' }}
           />
-          {/* Character counter */}
-          <span style={{ position: 'absolute', right: 85, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: input.length >= 150 ? '#d32f2f' : '#aaa', fontFamily: 'Manifold, var(--font-main)', background: 'rgba(255,255,255,0.6)', borderRadius: 10, padding: '2px 6px', pointerEvents: 'none', zIndex: 1, minWidth: '35px', textAlign: 'center' }}>
-            {input.length}/150
-          </span>
           {/* Send Button */}
-           <button type="submit" style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', height: 38, minWidth: 70, fontWeight: 700, fontSize: 17, borderRadius: 20, background: '#232323', color: '#fff', border: 'none', cursor: loading ? 'wait' : 'pointer', padding: '0 15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} disabled={loading} aria-label="Enviar mensaje">
+           <button type="submit" style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', height: 38, minWidth: 70, fontWeight: 700, fontSize: 17, borderRadius: 20, background: '#232323', color: '#fff', border: 'none', cursor: loading ? 'wait' : 'pointer', padding: '0 15px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} disabled={loading} aria-label="Enviar mensaje">
             Enviar
           </button>
         </div>
