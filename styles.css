@@ -551,3 +551,22 @@ footer {
 html, body {
   overscroll-behavior: none; /* bloquea scroll de body inducido */
 }
+
+.nema-thinking-dots {
+  font-size: 16px;
+  color: #1db954;
+  font-weight: 600;
+  font-family: 'Manifold', var(--font-main);
+  display: inline-block;
+}
+.dots-animate::after {
+  content: '...';
+  animation: blink 1.2s infinite steps(3, jump-none);
+}
+@keyframes blink {
+  0% { opacity: 1; }
+  20% { opacity: 1; }
+  40% { opacity: 0; }
+  60% { opacity: 1; }
+  100% { opacity: 1; }
+}

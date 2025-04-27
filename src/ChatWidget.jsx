@@ -231,15 +231,12 @@ export default function ChatWidget() {
       date: new Date(),
       title: 'Tú', // "You" in Spanish
     };
-    // 1b. Añade mensaje "pensando" del bot
-    const thinkingMessage = {
-      position: 'left',
-      thinking: true,
-      type: 'thinking',
-      date: new Date(),
-      title: 'Nema',
-    };
-    setMessages((msgs) => [...msgs, newUserMessage, thinkingMessage]);
+    // Antes de añadir el mensaje pensando, elimina cualquier mensaje pensando previo
+    setMessages((msgs) => {
+      // Elimina todos los mensajes thinking previos
+      const filtered = msgs.filter(m => !m.thinking);
+      return [...filtered, newUserMessage, { position: 'left', thinking: true, type: 'thinking', date: new Date(), title: 'Nema' }];
+    });
 
     // 2. Set Loading State & Clear Input
     setLoading(true);
@@ -338,7 +335,10 @@ export default function ChatWidget() {
     if (msg.thinking) {
       return (
         <div key={`thinking-${i}`} style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: 12 }}>
-          <div style={{ fontSize: 22, marginRight: 6, alignSelf: 'flex-end' }}>🌱</div> {/* Bot icon */}
+          <div style={{ fontSize: 22, marginRight: 6, alignSelf: 'flex-end' }}>🌱</div>
+          <div className="nema-thinking-dots" style={{ fontSize: 16, color: '#1db954', fontWeight: 600, fontFamily: 'Manifold, var(--font-main)' }}>
+            Nema está pensando<span className="dots-animate"></span>
+          </div>
         </div>
       );
     }
@@ -375,7 +375,7 @@ export default function ChatWidget() {
                 table: MarkdownTable,
                 a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" style={{color: 'var(--primary, #444444)', textDecoration: 'underline', fontWeight: 600}}/>,
                 p: ({node, ...props}) => <p style={{margin: '0 0 10px 0', fontWeight: 600, fontFamily: 'Manifold, var(--font-main)'}}>{props.children}</p>,
-                strong: ({node, ...props}) => <strong style={{fontWeight: 800, color: '#1db954', fontFamily: 'Manifold, var(--font-main)'}}>{props.children}</strong>,
+                strong: ({node, ...props}) => <strong style={{fontWeight: 800, color: '#ff9800', fontFamily: 'Manifold, var(--font-main)'}}>{props.children}</strong>,
                 li: ({node, ...props}) => <li style={{fontWeight: 600, fontFamily: 'Manifold, var(--font-main)'}}>{props.children}</li>,
                 hr: () => <hr style={{margin: '8px 0'}} />
               }}
