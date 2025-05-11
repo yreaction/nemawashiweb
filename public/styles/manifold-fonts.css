@@ -1,0 +1,196 @@
+/* Manifold Font Faces */
+@font-face {
+  font-family: 'Manifold';
+  src: url('../fonts/Manifold/fonnts.com-Manifold_CF_Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Manifold';
+  src: url('../fonts/Manifold/fonnts.com-Manifold_CF_Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Manifold';
+  src: url('../fonts/Manifold/fonnts.com-Manifold_CF_Demi_Bold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Manifold';
+  src: url('../fonts/Manifold/fonnts.com-Manifold_CF_Extra_Bold.otf') format('opentype');
+  font-weight: 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Manifold';
+  src: url('../fonts/Manifold/fonnts.com-Manifold_CF_Heavy.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Manifold';
+  src: url('../fonts/Manifold/fonnts.com-Manifold_CF_Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Manifold';
+  src: url('../fonts/Manifold/fonnts.com-Manifold_CF_Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Manifold';
+  src: url('../fonts/Manifold/fonnts.com-Manifold_CF_Thin.otf') format('opentype');
+  font-weight: 100;
+  font-style: normal;
+}
+
+:root {
+  --severance-green: #25544b;
+  --severance-green-light: #eaf6f3;
+  --severance-white: #ffffff;
+  --severance-gray: #f5f6f7;
+  --severance-gray-dark: #e0e3e6;
+  --severance-black: #232323;
+  --severance-accent: #ff4d4f;
+
+  --bubble-user-bg: #f0f4f8;
+  --bubble-user-text: #232323;
+  --bubble-bot-bg: #fff;
+  --bubble-bot-text: #232323;
+
+  --font-main: 'Manifold', 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  font-family: var(--font-main);
+  background: var(--severance-white);
+  color: #444444;
+}
+
+/* Severance inspired chat bubble styles */
+.nema-chat-bubble {
+  font-family: var(--font-main);
+  background: var(--bubble-bot-bg);
+  color: var(--bubble-bot-text);
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px 0 rgba(34,34,34,0.04);
+  max-width: 85%;
+  word-break: break-word;
+  font-size: 1.08em;
+  border: 1px solid var(--severance-gray-dark);
+}
+.nema-chat-bubble.right {
+  background: var(--bubble-user-bg);
+  color: var(--bubble-user-text);
+  margin-left: auto;
+  border: 1px solid var(--severance-gray-dark);
+}
+.nema-chat-bubble.left {
+  background: var(--bubble-bot-bg);
+  color: var(--bubble-bot-text);
+  margin-right: auto;
+  border: 1px solid var(--severance-gray-dark);
+}
+
+.nema-chat-title {
+  font-family: var(--font-main);
+  font-weight: 700;
+  font-size: 1.05em;
+  margin-bottom: 2px;
+  letter-spacing: 0.01em;
+}
+
+.nema-logo-row-large {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 0;
+  padding-top: 0;
+  width: 100%;
+}
+.nema-logo-img-large {
+  height: 180px;
+  width: auto;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+.nema-logo-text-large {
+  font-family: var(--font-main);
+  font-weight: 400;
+  letter-spacing: -0.05em;
+  color: #444444;
+  font-size: 80px;
+  line-height: 1;
+  height: 120px;
+  text-align: left;
+  margin-top: 0px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.nema-logo-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0;
+}
+.nema-logo-img {
+  height: 48px;
+  width: auto;
+}
+.nema-logo-text {
+  font-family: var(--font-main);
+  font-size: 2.2em;
+  font-weight: 700;
+  color: var(--severance-green);
+  letter-spacing: 0.04em;
+}
+
+/* Inputs and buttons Severance style */
+.nema-input {
+  font-family: var(--font-main);
+  border: 1.5px solid var(--severance-gray-dark);
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 1em;
+  background: #fafbfc;
+  color: #444444;
+  transition: border 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.nema-input:focus {
+  border-color: var(--severance-green);
+  outline: none;
+}
+.nema-btn {
+  font-family: var(--font-main);
+  background: var(--severance-green);
+  color: var(--severance-white);
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-size: 1em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: 10px;
+}
+.nema-btn:disabled {
+  background: var(--severance-gray-dark);
+  color: var(--severance-black);
+  cursor: not-allowed;
+}
+.nema-btn:hover:not(:disabled) {
+  background: #388e7d;
+}

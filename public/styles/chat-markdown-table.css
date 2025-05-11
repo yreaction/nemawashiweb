@@ -1,0 +1,31 @@
+.chat-markdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 15px;
+}
+.chat-markdown-table th {
+  background: #f1f5fa;
+  color: #3c3c3c;
+  font-weight: 700;
+  padding: 7px 8px;
+  border: 1px solid #e0e7ef;
+  text-align: left;
+}
+.chat-markdown-table td {
+  padding: 7px 8px;
+  border: 1px solid #e0e7ef;
+  text-align: left;
+  vertical-align: top;
+  font-size: 15px;
+}
+.chat-markdown-table .tick {
+  color: #3bb66c;
+  font-weight: 700;
+  margin-right: 6px;
+}
+.chat-markdown-table .benefit {
+  color: #1e7dd6;
+  font-weight: 600;
+  background: #e8f4ff;
+}
