@@ -1,4 +1,16 @@
 /* Nemawashi AI Landing Page Styles */
+.cta-header-btn, .cta-after-cases-btn {
+  background: #ff914d !important;
+  color: #fff !important;
+  border-radius: 999px !important;
+  padding: 14px 28px !important;
+  font-weight: 700 !important;
+  font-size: 1.08rem !important;
+  text-decoration: none !important;
+  border: none !important;
+  display: inline-block !important;
+}
+
 :root {
   --primary: #444444; /* Gris oscuro */
   --accent: #9b8c6b;  /* Marfil acento suave */
