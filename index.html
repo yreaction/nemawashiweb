@@ -128,19 +128,6 @@
     </div>
     <div class="copyright"> 2025 Nemawashi AI. Todos los derechos reservados.</div>
   </footer>
-
-      const msg = document.getElementById('contact-msg').value;
-      const statusDiv = document.getElementById('contact-status');
-      statusDiv.style.display = 'none';
-      try {
-        const res = await fetch('mailto:info@nemawashi.ia?subject=Contacto%20Web&body=' + encodeURIComponent(msg + '\n\nEmail: ' + email));
-        statusDiv.textContent = 'Mensaje enviado (abre tu cliente de correo para completar el envío)';
-        statusDiv.style.display = 'block';
-      } catch {
-        statusDiv.textContent = 'No se pudo abrir el cliente de correo. Escribe a info@nemawashi.ia';
-        statusDiv.style.display = 'block';
-      }
-    };
   </script>
   <script>
     // Info extendida de cada caso
