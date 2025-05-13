@@ -42,13 +42,16 @@
 <body style="background: var(--bg-light, #fffaf3); margin:0;">
   <!-- Header: Logo centrado -->
   <header>
-    <a href="/" style="display: flex; justify-content: center; width: 100%;">
+    <div style="display: flex; justify-content: center; width: 100%;">
       <img src="../images/nemaWashiLogo.png" alt="Nemawashi AI Logo" class="logo" loading="lazy">
-    </a>
-    <a href="/" style="position: absolute; right: 32px; top: 22px; padding:9px 22px;background:#232323;color:#fff;border:none;border-radius:20px;font-weight:700;font-size:16px;cursor:pointer;font-family:Manifold, var(--font-main);text-decoration:none;">Volver</a>
+    </div>
+    <a href="/" style="position: absolute; left: 32px; top: 22px; z-index:12; padding:15px 15px 15px 15px; background:#232323; color:#fff; border:none; border-radius:20px; font-weight:700; font-size:16px; cursor:pointer; font-family:Manifold, var(--font-main); text-decoration:none; display:flex; align-items:center; gap:0px;"><span style="font-size:18px;line-height:0;">&#8592;</span></a>
   </header>
   <main style="padding:38px 48px 0 48px;font-family:Manifold, var(--font-main);color:#232323;max-width:1100px;margin:0 auto;">
     <h1 style="font-size:32px;font-weight:800;margin-bottom:18px;letter-spacing:-1px;color:var(--primary,#e26a2c);font-family:Manifold, var(--font-main);">Tu Negocio Abierto 24/7: Un Agente Virtual para Pedidos y Citas.</h1>
+  <div style="text-align:center; margin-bottom: 26px; position: relative; z-index: 10;">
+    <a href="#solucion-en-accion" style="display:inline-block;padding:15px 38px;background:#e26a2c;color:#fff;border-radius:24px;font-size:19px;font-weight:700;text-decoration:none;box-shadow:0 2px 8px 0 rgba(34,34,34,0.09);transition:background 0.2s;margin-top:10px;">Ver un caso real</a>
+  </div>
     <p style="font-size:20px;line-height:1.45;color:#232323;margin-bottom:16px;">
       La gestión manual de pedidos, reservas o citas por teléfono, WhatsApp o redes puede ser un verdadero desafío. Te enfrentas a:
     </p>
@@ -108,14 +111,14 @@
 
     <!-- SECCIÓN 4: Demos en acción -->
     <section style="margin-top:54px;padding-bottom:12px;">
-      <h2 style="font-size:26px;font-weight:800;color:#232323;margin-bottom:14px;letter-spacing:-0.5px;">Vea Nuestra Solución en Acción: El Caso Real de la Pizzería</h2>
+      <h2 id="solucion-en-accion" style="font-size:26px;font-weight:800;color:#232323;margin-bottom:14px;letter-spacing:-0.5px;">Vea Nuestra Solución en Acción: El Caso Real de la Pizzería</h2>
       <p style="font-size:19px;line-height:1.5;color:#232323;margin-bottom:28px;">
         Ahora que conoces los componentes de nuestra solución, te invitamos a verla funcionando en un entorno real. Observa cómo gestionamos pedidos para una pizzería, y cómo esta misma tecnología se adapta para resolver las necesidades de cualquier negocio que gestione solicitudes importantes, desde reservas de hotel hasta citas médicas o servicios de reparación.
       </p>
       <div style="display:flex;flex-wrap:wrap;gap:32px 38px;align-items:stretch;margin-bottom:22px;">
         <!-- Demo 1: Audio -->
         <div style="flex:1 1 320px;min-width:270px;max-width:440px;background:#fff;border-radius:16px;box-shadow:0 2px 10px 0 rgba(34,34,34,0.06);padding:22px 22px 18px 22px;">
-          <div style="font-size:15px;font-weight:700;color:#e26a2c;margin-bottom:7px;">Demo 1: Interacción Telefónica - Pedido y Consulta</div>
+          <div style="font-size:22px;font-weight:800;color:#e26a2c;margin-bottom:10px;">Demo 1: Interacción Telefónica - Pedido y Consulta</div>
           <p style="font-size:16.5px;line-height:1.6;color:#232323;margin-bottom:10px;">
             Escucha esta llamada real. Nuestro Agente Virtual guía al cliente para consultar el menú y hacer su pedido de pizza. Nota la naturalidad de la conversación y cómo se captura la información clave automáticamente. Esta misma fluidez se aplica al agendar o modificar citas, responder preguntas frecuentes o cualquier otra interacción telefónica automatizada que necesites en tu negocio.
           </p>
@@ -128,7 +131,7 @@
         </div>
         <!-- Demo 2: Video -->
         <div style="flex:1 1 320px;min-width:270px;max-width:440px;background:#fff;border-radius:16px;box-shadow:0 2px 10px 0 rgba(34,34,34,0.06);padding:22px 22px 18px 22px;">
-          <div style="font-size:15px;font-weight:700;color:#e26a2c;margin-bottom:7px;">Demo 2: Gestión vía Chat - Pedido y Consulta</div>
+          <div style="font-size:22px;font-weight:800;color:#e26a2c;margin-bottom:10px;">Demo 2: Gestión vía Chat - Pedido y Consulta</div>
           <p style="font-size:16.5px;line-height:1.6;color:#232323;margin-bottom:10px;">
             Observa en este video una interacción por Telegram (válido también para WhatsApp). El cliente pide su pizza y consulta el menú cómodamente por chat. Destacamos la flexibilidad de atender a tus clientes en sus canales preferidos, facilitando la gestión de pedidos, la confirmación de citas, el envío de recordatorios o cualquier otra comunicación por mensajería.
           </p>
@@ -143,7 +146,7 @@
       <div style="display:flex;flex-wrap:wrap;gap:32px 38px;align-items:stretch;margin-bottom:22px;">
         <!-- Demo 3: Captura Dashboard Pedidos -->
         <div style="flex:1 1 320px;min-width:270px;max-width:440px;background:#fff;border-radius:16px;box-shadow:0 2px 10px 0 rgba(34,34,34,0.06);padding:22px 22px 18px 22px;">
-          <div style="font-size:15px;font-weight:700;color:#e26a2c;margin-bottom:7px;">En el Dashboard: Visión Unificada de Solicitudes</div>
+          <div style="font-size:22px;font-weight:800;color:#e26a2c;margin-bottom:10px;">En el Dashboard: Visión Unificada de Solicitudes</div>
           <p style="font-size:16.5px;line-height:1.6;color:#232323;margin-bottom:10px;">
             Esta es una vista del Dashboard de gestión. Muestra de forma organizada todos los pedidos recibidos por el agente en tiempo real. Imagina esta misma pantalla mostrando tus citas, reservas o cualquier otra solicitud. Tu equipo tiene una vista clara, puede verificar detalles y hacer ajustes manuales si es necesario.
           </p>
@@ -153,7 +156,7 @@
         </div>
         <!-- Demo 4: Captura Dashboard Tickets -->
         <div style="flex:1 1 320px;min-width:270px;max-width:440px;background:#fff;border-radius:16px;box-shadow:0 2px 10px 0 rgba(34,34,34,0.06);padding:22px 22px 18px 22px;">
-          <div style="font-size:15px;font-weight:700;color:#e26a2c;margin-bottom:7px;">En el Dashboard: Optimización de la Operación</div>
+          <div style="font-size:22px;font-weight:800;color:#e26a2c;margin-bottom:10px;">En el Dashboard: Optimización de la Operación</div>
           <p style="font-size:16.5px;line-height:1.6;color:#232323;margin-bottom:10px;">
             Desde el Dashboard, el sistema genera automáticamente documentos esenciales para la operación, como estos tickets de cocina detallados para cada pedido. Este proceso reduce drásticamente los errores manuales y optimiza tu flujo de trabajo, ya sea imprimiendo tickets de cocina, generando hojas de ruta para servicios a domicilio o preparando resúmenes para citas.
           </p>
