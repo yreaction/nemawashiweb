@@ -84,6 +84,25 @@ header {
   font-family: 'Manifold', var(--font-main);
   font-weight: 300;
 }
+
+/* Mobile-specific chat button positioning */
+@media (max-width: 768px) {
+  .hero p {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+  .sima-placeholder {
+    margin: 0;
+    padding: 0;
+  }
+  .sima-chat-widget {
+    width: 100%;
+    max-width: 320px;
+  }
+}
+
 .sima-placeholder {
   margin: 32px auto;
   width: 100%;
