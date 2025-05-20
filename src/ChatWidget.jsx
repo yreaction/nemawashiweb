@@ -454,11 +454,45 @@ if (isMobile && !mobileOpen) {
         }}
       >
         {/* Header Bar */}
-        <div style={{ background: '#232323', color: '#fff', padding: '13px 0 11px', textAlign: 'center', fontWeight: 800, fontSize: 19, position: 'relative', zIndex: 2, flexShrink: 0 }}>
-          Nema {/* Title */}
-          {/* Close Button */}
-          <button onClick={() => setMobileOpen(false)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#fff', fontSize: 26, fontWeight: 700, cursor: 'pointer', padding: '0 5px' }} aria-label="Cerrar chat">
-            × {/* Close icon */}
+        <div style={{ 
+          background: '#232323',
+          color: '#fff',
+          padding: '13px 0 11px',
+          textAlign: 'center',
+          fontWeight: 500,
+          fontSize: 19,
+          position: 'relative',
+          zIndex: 2,
+          flexShrink: 0 
+        }}>
+          <span style={{ 
+            color: '#fff',
+            fontWeight: 800,
+            fontSize: 19
+          }}>Nema</span>
+          <span style={{ 
+            color: '#fff',
+            fontWeight: 500,
+            fontSize: 16
+          }}> Soy tu asistente virtual</span>
+          <button 
+            onClick={() => setMobileOpen(false)} 
+            style={{ 
+              position: 'absolute',
+              right: 12,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'none',
+              border: 'none',
+              color: '#fff',
+              fontSize: 26,
+              fontWeight: 700,
+              cursor: 'pointer',
+              padding: '0 5px'
+            }} 
+            aria-label="Cerrar chat"
+          >
+            ×
           </button>
         </div>
 
