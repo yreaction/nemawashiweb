@@ -394,19 +394,46 @@ export default function ChatWidget() {
   // --- RENDER LOGIC ---
 
   // 1. Render Floating Action Button (FAB) if mobile and chat is closed
-  if (isMobile && !mobileOpen) {
-    return (
+// 1. Render inline button in chat container position on mobile if chat is closed
+if (isMobile && !mobileOpen) {
+  return (
+    <div
+      style={{
+        width: '100%',
+        maxWidth: 600,
+        margin: '0 auto',
+        padding: '20px',
+        boxShadow: '0 0 20px rgba(0,0,0,0.05)',
+        borderRadius: '20px',
+        background: '#f7f7f7',
+      }}
+    >
       <button
         style={{
-          position: 'fixed', bottom: 20, right: 20, zIndex: 10002, background: '#232323', color: '#fff', borderRadius: 32, padding: '14px 22px', fontWeight: 700, fontSize: 17, border: 'none', boxShadow: '0 2px 14px rgba(34,34,34,0.14)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
+          width: '100%',
+          background: '#232323',
+          color: '#fff',
+          borderRadius: 24,
+          padding: '14px 22px',
+          fontWeight: 700,
+          fontSize: 17,
+          border: 'none',
+          boxShadow: '0 2px 14px rgba(34,34,34,0.14)',
+          cursor: 'pointer',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '8px',
         }}
-        onClick={() => setMobileOpen(true)} // Open the chat
+        onClick={() => setMobileOpen(true)}
         aria-label="Abrir chat con Nema"
       >
         💬 Chatea con Nema
       </button>
-    );
-  }
+    </div>
+  );
+}
+
 
   // 2. Render Fullscreen Mobile Chat View if mobile and chat is open
   if (isMobile && mobileOpen) {
