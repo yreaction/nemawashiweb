@@ -75,11 +75,11 @@ header {
   color: var(--primary);
 }
 .hero p {
-  font-size: 1.18rem;
+  font-size: 1.2rem;
   color: var(--text-secondary);
   margin-bottom: 32px;
   font-family: 'Manifold', var(--font-main);
-  font-weight: 300;
+  font-weight: 550;
 }
 .sima-placeholder {
   margin: 32px auto;

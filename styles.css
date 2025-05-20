@@ -78,11 +78,11 @@ header {
   color: var(--primary);
 }
 .hero p {
-  font-size: 1.18rem;
+  font-size: 4rem;
   color: var(--text-secondary);
-  margin-bottom: 32px;
+  margin-bottom: px;
   font-family: 'Manifold', var(--font-main);
-  font-weight: 300;
+  font-weight: 500;
 }
 
 /* Mobile-specific chat button positioning */

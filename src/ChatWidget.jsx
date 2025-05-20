@@ -112,12 +112,8 @@ export default function ChatWidget() {
       type: 'text',
       markdown: true, // Contains markdown
       text:
-        `👋 ¡Hola, soy Nema!
-
-` +
-        `**Soy Nema, tu asistente virtual. En solo 2 minutos te mostraré ejemplos de cómo podemos automatizar tareas en tu negocio: citas, mensajes a clientes, recordatorios, informes… ¡y mucho más!**
-
-` +
+        `👋 ¡Hola, soy Nema!\n\n` +
+        `Dime a qué te dedicas, y te enseñaré cómo puedes ahorrar tiempo cada semana automatizando tareas, **sin que necesites conocimientos técnicos**.\n\n` +
          '\n\n' + 'Por ejemplo:' + '\n\n' + getRandomWelcomeCase() + '\n\n', // Initial welcome message
       date: new Date(),
       title: 'Nema', // Sender name
